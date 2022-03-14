@@ -1,4 +1,3 @@
-
 import pandas
 import os.path
 import sys
@@ -18,8 +17,8 @@ def calculate_linkage(center1, center2):
     calculate the Euclidean distance between two cluster centroids
     """
     # convert the Series to numpy.ndarray
-    array1 = center1.to_numpy(dtype=float, copy=True)
-    array2 = center2.to_numpy(dtype=float, copy=True)
+    array1 = numpy.array(center1) # center1.to_numpy(dtype=float, copy=True)
+    array2 = numpy.array(center2) # center2.to_numpy(dtype=float, copy=True)
     # square root of the sum of squared differences
     difference = array1 - array2
     squared = difference * difference
@@ -27,22 +26,50 @@ def calculate_linkage(center1, center2):
     return numpy.sqrt(squared_sum)
 
 
+def calc_center_of_mass(attributes):
+    result = [0 for _ in range(len(attributes[0]))]
+    for record in attributes:
+        for i in range(len(record)):
+            result[i] += record[i]
+
+    for i in range(len(result)):
+        result[i] /= len(attributes)
+
+    return result
+
+
 def initialize(dataframe):
     row_count = dataframe.shape[0]
     # an n-by-n matrix where cell (x, y) represents the distance between cluster x and cluster y
     # (x, x) cells will contain 0
-    distances = [[0 for _ in range(row_count + 1)] for _ in range(row_count + 1)]
+    distances = [[calc_center_of_mass([row.tolist()]), [row.tolist()]] for _, row in dataframe.iterrows()]
     clusters = {}
-    for index, row in dataframe.iterrows():
-        # make a dataframe out of a single row in the dataframe
-        clusters[index] = pandas.DataFrame([row])
-        # for every row otherRow except the current one,
-        # calculate the distance from it to the current row
-        for otherIndex, otherRow in dataframe.iterrows():
-            if otherIndex > index:
-                linkage = calculate_linkage(row, otherRow)
-                distances[index][otherIndex] = linkage
-                distances[otherIndex][index] = linkage
+
+    while len(distances) > 1:
+        cluster_one = 0
+        cluster_two = 1
+        best_dist = calculate_linkage(distances[0][0], distances[1][0])
+        for c1_index in range(len(distances)):
+            for c2_index in range(c1_index + 1, len(distances)):
+                cluster_dist = calculate_linkage(distances[c1_index][0], distances[c2_index][0])
+                if cluster_dist < best_dist:
+                    best_dist = cluster_dist
+                    cluster_one = c1_index
+                    cluster_two = c2_index
+        removed = distances.pop(cluster_two)
+        attributes = distances[cluster_one][1]
+        attributes.extend(removed[1])
+        distances[cluster_one] = [calc_center_of_mass(attributes), attributes]
+    # for index, row in dataframe.iterrows():
+    #     # make a dataframe out of a single row in the dataframe
+    #     clusters[index] = pandas.DataFrame([row])
+    #     # for every row otherRow except the current one,
+    #     # calculate the distance from it to the current row
+    #     for otherIndex, otherRow in dataframe.iterrows():
+    #         if otherIndex > index:
+    #             linkage = calculate_linkage(row, otherRow)
+    #             distances[index][otherIndex] = linkage
+    #             distances[otherIndex][index] = linkage
     return distances, clusters
 
 
@@ -53,8 +80,10 @@ def main():
 
     data = read_data_file("HW_CLUSTERING_SHOPPING_CART_v2215H_test.csv")
 
+    print(data)
+    print("did the data")
     cross_correlation = data.corr()
-    print(cross_correlation)
+    # print(cross_correlation)
     distanceMatrix, clusters = initialize(data)
 
 
