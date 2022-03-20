@@ -52,9 +52,9 @@ def agglomerate(distances, clusters):
 
         # merge the clusters by combining their records
         # start/this_index which is the smaller number represents the updated cluster
+        # save the size of the smaller cluster being merged
+        merged_cluster_sizes.append(min(clusters[other_index].shape[0], clusters[this_index].shape[0]))
         clusters[this_index] = pandas.concat([clusters[this_index], clusters[other_index]], ignore_index=True)
-        # save the size of the merged cluster
-        merged_cluster_sizes.append(clusters[other_index].shape[0])
         # remove the merged cluster
         del clusters[other_index]
 
