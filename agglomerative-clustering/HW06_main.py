@@ -52,7 +52,7 @@ def agglomerate(distances, clusters):
 
         # merge the clusters by combining their records
         # start/this_index which is the smaller number represents the updated cluster
-        clusters[this_index] = clusters[this_index].append(clusters[other_index], ignore_index=True)
+        clusters[this_index] = pandas.concat([clusters[this_index], clusters[other_index]], ignore_index=True)
         # save the size of the merged cluster
         merged_cluster_sizes.append(clusters[other_index].shape[0])
         # remove the merged cluster
@@ -103,8 +103,8 @@ def main():
     print("did the data")
     cross_correlation = data.corr()
     # print(cross_correlation)
-    distanceMatrix, clusters = initialize(data)
-    agglomerate(distanceMatrix, clusters)
+    distance_matrix, clusters = initialize(data)
+    agglomerate(distance_matrix, clusters)
 
 
 if __name__ == "__main__":
