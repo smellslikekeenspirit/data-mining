@@ -44,12 +44,13 @@ def initialize(dataframe):
     # (x, x) cells will contain 0
     distances = [[calc_center_of_mass([row.tolist()]), [row.tolist()]] for _, row in dataframe.iterrows()]
     clusters = {}
+    merged_clusters = []
 
     while len(distances) > 1:
         cluster_one = 0
         cluster_two = 1
-        best_dist = calculate_linkage(distances[0][0], distances[1][0])
-        for c1_index in range(len(distances)):
+        best_dist = sys.float_info.max
+        for c1_index in range(len(distances) - 1):
             for c2_index in range(c1_index + 1, len(distances)):
                 cluster_dist = calculate_linkage(distances[c1_index][0], distances[c2_index][0])
                 if cluster_dist < best_dist:
@@ -57,19 +58,11 @@ def initialize(dataframe):
                     cluster_one = c1_index
                     cluster_two = c2_index
         removed = distances.pop(cluster_two)
+        merged_clusters.append(min(len(distances[cluster_one][1]), len(removed[1])))
         attributes = distances[cluster_one][1]
         attributes.extend(removed[1])
         distances[cluster_one] = [calc_center_of_mass(attributes), attributes]
-    # for index, row in dataframe.iterrows():
-    #     # make a dataframe out of a single row in the dataframe
-    #     clusters[index] = pandas.DataFrame([row])
-    #     # for every row otherRow except the current one,
-    #     # calculate the distance from it to the current row
-    #     for otherIndex, otherRow in dataframe.iterrows():
-    #         if otherIndex > index:
-    #             linkage = calculate_linkage(row, otherRow)
-    #             distances[index][otherIndex] = linkage
-    #             distances[otherIndex][index] = linkage
+    print(merged_clusters)
     return distances, clusters
 
 
