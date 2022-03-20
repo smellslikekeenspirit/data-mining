@@ -17,8 +17,8 @@ def calculate_linkage(center1, center2):
     calculate the Euclidean distance between two cluster centroids
     """
     # convert the Series to numpy.ndarray
-    array1 = numpy.array(center1) # center1.to_numpy(dtype=float, copy=True)
-    array2 = numpy.array(center2) # center2.to_numpy(dtype=float, copy=True)
+    array1 = center1.to_numpy(dtype=float, copy=True)
+    array2 = center2.to_numpy(dtype=float, copy=True)
     # square root of the sum of squared differences
     difference = array1 - array2
     squared = difference * difference
@@ -27,49 +27,68 @@ def calculate_linkage(center1, center2):
 
 
 def calc_center_of_mass(attributes):
-    result = [0 for _ in range(len(attributes[0]))]
-    for record in attributes:
-        for i in range(len(record)):
-            result[i] += record[i]
+    return attributes.mean()
 
-    for i in range(len(result)):
-        result[i] /= len(attributes)
 
-    return result
+def agglomerate(distances, clusters):
+    merged_cluster_sizes = []
+    while len(clusters) > 1:
+        lowest_distance = sys.float_info.max
+        this_index = 0
+        other_index = 0
+
+        # compare every cluster against every other cluster and
+        # find the two closest to each other
+        for start in clusters.keys():
+            for end in clusters.keys():
+                # ensure start smaller than end for consistent merging
+                if start >= end:
+                    continue
+                # if distance is lower than the current lowest value, save it
+                if distances[start][end] < lowest_distance:
+                    lowest_distance = distances[start][end]
+                    this_index = start
+                    other_index = end
+
+        # merge the clusters by combining their records
+        # start/this_index which is the smaller number represents the updated cluster
+        clusters[this_index] = clusters[this_index].append(clusters[other_index], ignore_index=True)
+        # save the size of the merged cluster
+        merged_cluster_sizes.append(clusters[other_index].shape[0])
+        # remove the merged cluster
+        del clusters[other_index]
+
+        # recompute distances of updated cluster to all remaining clusters
+        for other_index in clusters.keys():
+            linkage = calculate_linkage(calc_center_of_mass(clusters[other_index]),
+                                        calc_center_of_mass(clusters[this_index]))
+            distances[this_index][other_index] = linkage
+            distances[other_index][this_index] = linkage
+
+        if len(clusters) == 2:
+            for k, v in clusters.items():
+                print(v.shape[0])
+                print(calc_center_of_mass(clusters[k]))
+
+    print(merged_cluster_sizes)
 
 
 def initialize(dataframe):
     row_count = dataframe.shape[0]
     # an n-by-n matrix where cell (x, y) represents the distance between cluster x and cluster y
     # (x, x) cells will contain 0
-    distances = [[calc_center_of_mass([row.tolist()]), [row.tolist()]] for _, row in dataframe.iterrows()]
+    distances = [[0 for _ in range(row_count + 1)] for _ in range(row_count + 1)]
     clusters = {}
-
-    while len(distances) > 1:
-        cluster_one = 0
-        cluster_two = 1
-        best_dist = calculate_linkage(distances[0][0], distances[1][0])
-        for c1_index in range(len(distances)):
-            for c2_index in range(c1_index + 1, len(distances)):
-                cluster_dist = calculate_linkage(distances[c1_index][0], distances[c2_index][0])
-                if cluster_dist < best_dist:
-                    best_dist = cluster_dist
-                    cluster_one = c1_index
-                    cluster_two = c2_index
-        removed = distances.pop(cluster_two)
-        attributes = distances[cluster_one][1]
-        attributes.extend(removed[1])
-        distances[cluster_one] = [calc_center_of_mass(attributes), attributes]
-    # for index, row in dataframe.iterrows():
-    #     # make a dataframe out of a single row in the dataframe
-    #     clusters[index] = pandas.DataFrame([row])
-    #     # for every row otherRow except the current one,
-    #     # calculate the distance from it to the current row
-    #     for otherIndex, otherRow in dataframe.iterrows():
-    #         if otherIndex > index:
-    #             linkage = calculate_linkage(row, otherRow)
-    #             distances[index][otherIndex] = linkage
-    #             distances[otherIndex][index] = linkage
+    for index, row in dataframe.iterrows():
+        # make a dataframe out of a single row in the dataframe
+        clusters[index] = pandas.DataFrame([row])
+        # for every row otherRow except the current one,
+        # calculate the distance from it to the current row
+        for otherIndex, otherRow in dataframe.iterrows():
+            if otherIndex > index:
+                linkage = calculate_linkage(row, otherRow)
+                distances[index][otherIndex] = linkage
+                distances[otherIndex][index] = linkage
     return distances, clusters
 
 
@@ -85,6 +104,7 @@ def main():
     cross_correlation = data.corr()
     # print(cross_correlation)
     distanceMatrix, clusters = initialize(data)
+    agglomerate(distanceMatrix, clusters)
 
 
 if __name__ == "__main__":
