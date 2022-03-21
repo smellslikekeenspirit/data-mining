@@ -2,6 +2,7 @@ import pandas
 import os.path
 import sys
 import numpy
+from scipy import cluster
 
 
 def read_data_file(data_file_name):
@@ -70,7 +71,7 @@ def agglomerate(distances, clusters):
                 print(v.shape[0])
                 print(calc_center_of_mass(clusters[k]))
 
-    print(merged_cluster_sizes)
+    print(merged_cluster_sizes[-10:])
 
 
 def initialize(dataframe):
