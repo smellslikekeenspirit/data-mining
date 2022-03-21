@@ -93,16 +93,14 @@ def initialize(dataframe):
 
 
 def main():
-    pandas.set_option('display.max_rows', 10)
-    pandas.set_option('display.max_columns', 10)
-    pandas.set_option('display.width', 100)
+    pandas.set_option('display.max_rows', 20)
+    pandas.set_option('display.max_columns', 20)
+    pandas.set_option('display.width', 250)
 
-    data = read_data_file("HW_CLUSTERING_SHOPPING_CART_v2215H_test.csv")
+    data = read_data_file("HW_CLUSTERING_SHOPPING_CART_v2215H.csv")
 
-    print(data)
-    print("did the data")
-    cross_correlation = data.corr()
-    # print(cross_correlation)
+    cross_correlation = data.corr().round(2)
+    print(cross_correlation)
     distance_matrix, clusters = initialize(data)
     agglomerate(distance_matrix, clusters)
 
