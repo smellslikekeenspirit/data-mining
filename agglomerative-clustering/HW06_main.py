@@ -1,10 +1,22 @@
+"""
+Authors: Prionti Nasir, Justin Palmer
+HW06
+"""
+
 import pandas
 import os.path
 import sys
 import numpy
+from matplotlib import pyplot as plt
+from scipy import cluster
 
 
 def read_data_file(data_file_name):
+    """
+    reads csv file and converts into dataframe
+    :param data_file_name: file name
+    :return: data in int
+    """
     data_file_path = os.path.join(os.getcwd(), data_file_name)
     if not os.path.exists(data_file_path):
         sys.exit("Provided data file could not be found.")
@@ -26,12 +38,23 @@ def calculate_linkage(center1, center2):
     return numpy.sqrt(squared_sum)
 
 
-def calc_center_of_mass(attributes):
-    return attributes.mean()
+def calc_center_of_mass(this_cluster):
+    """
+    calculate center of mass of cluster using attribute values for each item in cluster
+    :param this_cluster: cluster
+    :return: mean/center of mass
+    """
+    return this_cluster.mean()
 
 
 def agglomerate(distances, clusters):
-    merged_cluster_sizes = []
+    """
+    performs agglomerative clustering on given clusters using a distance matrix that it constantly updates
+    :param distances: distance matrix
+    :param clusters: clusters to agglomerate/merge
+    :return: None
+    """
+    merged_smaller_cluster_sizes = []
     while len(clusters) > 1:
         lowest_distance = sys.float_info.max
         this_index = 0
@@ -50,10 +73,10 @@ def agglomerate(distances, clusters):
                     this_index = start
                     other_index = end
 
-        # merge the clusters by combining their records
-        # start/this_index which is the smaller number represents the updated cluster
         # save the size of the smaller cluster being merged
-        merged_cluster_sizes.append(min(clusters[other_index].shape[0], clusters[this_index].shape[0]))
+        merged_smaller_cluster_sizes.append(min(clusters[other_index].shape[0], clusters[this_index].shape[0]))
+        # merge the clusters
+        # start/this_index which is the smaller number represents the updated cluster
         clusters[this_index] = pandas.concat([clusters[this_index], clusters[other_index]], ignore_index=True)
         # remove the merged cluster
         del clusters[other_index]
@@ -65,15 +88,26 @@ def agglomerate(distances, clusters):
             distances[this_index][other_index] = linkage
             distances[other_index][this_index] = linkage
 
-        if len(clusters) == 2:
+        if len(clusters) == 4:
             for k, v in clusters.items():
-                print(v.shape[0])
+                print("Shape: " + str(v.shape[0]))
                 print(calc_center_of_mass(clusters[k]))
 
-    print(merged_cluster_sizes)
+    print(merged_smaller_cluster_sizes[-10:])
 
 
 def initialize(dataframe):
+    # calculate linkage for full dendrogram
+    Z = cluster.hierarchy.linkage(dataframe, 'ward')
+    plt.title('Hierarchical Clustering Dendrogram')
+    plt.xlabel('sample index')
+    plt.ylabel('distance')
+    # make the dendrogram
+    cluster.hierarchy.dendrogram(Z, labels=dataframe.index, leaf_rotation=90, leaf_font_size=0.5)
+    plt.savefig('plt.png', format='png', bbox_inches='tight')
+    # show the graph
+    plt.show()
+
     row_count = dataframe.shape[0]
     # an n-by-n matrix where cell (x, y) represents the distance between cluster x and cluster y
     # (x, x) cells will contain 0
