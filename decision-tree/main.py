@@ -42,8 +42,51 @@ def build_classification(data, classification, level):
     return
 
 
-def write_decision_tree():
-   print('tmp')
+# Reads in the unlabeled data and stores the columns in an array
+def read_input(fp):
+    fp.write('if __name__ == \'__main__\':\n')
+    fp.write('\tdata = [[], []]\n\n')
+    fp.write('\t#reads in the unlabeled data from the csv\n')
+    fp.write('\twith open(\'Abominable_VALIDATION_Data_FOR_STUDENTS_v750_2215.csv\', \'r\') as file:\n')
+    fp.write('\t\tfile.readline()\n')
+    fp.write('\t\tfor line in file:\n')
+    fp.write('\t\t\trow = line.strip().split(",")\n')
+    fp.write('\t\t\tdata[0].append(float(row[0]))\n')
+    fp.write('\t\t\tdata[1].append(float(row[1]))\n\n')
+
+
+# The one rule classification for unlabeled data
+def classify_data(fp, threshold, left_class, right_class, attr):
+    fp.write('\t# classifies the unlabled data\n')
+    fp.write('\tclassification = []\n')
+    fp.write('\tfor attr in data[%d]:\n' % attr)
+    # this needs to be changes to use the classifier build by the decision tree
+    # fp.write('\t\tif attr <= %d:\n' % threshold)
+    # fp.write('\t\t\tclass_id = \'%s\'\n' % left_class)
+    # fp.write('\t\telse:\n')
+    # fp.write('\t\t\tclass_id = \'%s\'\n' % right_class)
+    # fp.write('\t\tprint(class_id)\n')
+    # fp.write('\t\tclassification.append(class_id)\n\n')
+
+
+# Writes the now classified data to a csv file
+# The order of the elements is the order the data was read in
+def output_classification(fp):
+    fp.write('\t# writes out the classifications to a csv\n')
+    fp.write('\tfp = open(\'HW05_LastName_FirstName_MyClassifications.csv\', \'w\')\n')
+    fp.write('\tfor class_type in classification:\n')
+    fp.write('\t\tfp.write(\'%s\\n\' % class_type)\n')
+    fp.write('\tfp.close()\n')
+
+
+def write_decision_tree(data, classification):
+    fp = open('HW05_LastName_FirstName_Trained_Classifier.py', 'w')
+
+    read_input(fp)
+    classify_data(fp, threshold, left_class, right_class, attr)
+    output_classification(fp)
+
+    fp.close()
 
 
 if __name__ == '__main__':
@@ -65,4 +108,4 @@ if __name__ == '__main__':
             classification.append(int(attributes[-1]))
             data.append(values)
 
-    build_classification(data, classification)
+    write_decision_tree(data, classification)
