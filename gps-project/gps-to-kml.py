@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import pynmea2 as nmea
 import geographiclib.geodesic as geo
+import math
 
 df = pd.DataFrame(columns=["ID", "Time", "Latitude", "Longitude", "Altitude"])
 
@@ -74,6 +75,12 @@ def angle_dif(origin, coord, cur_loc):
     return abs(bear_one - bear_two)
 
 
+def too_far(cur_loc, next_loc):
+    if len(cur_loc) == 0:
+        return False
+    return abs(math.dist(cur_loc, next_loc)) > 5
+
+
 def kml_writer(gps_file, kml_file):
     """
     iterates over records in the GPS file and populates corresponding KML file
@@ -107,7 +114,7 @@ def kml_writer(gps_file, kml_file):
                     print("gpgga")
                     # this method needs the name of the kml file because
                     # we are only using GPGGA sentences to write kml
-                    if start_track and (not straight_line and not stopped):
+                    if start_track and (not straight_line and not stopped) and not too_far(cur_loc, [lat, long]):
                         parse_gpgga(sentence, kml_file)
                     if stopped:
                         # reset straight line traking
