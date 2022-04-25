@@ -2,6 +2,8 @@ import sys
 import pandas as pd
 import pynmea2 as nmea
 import geographiclib.geodesic as geo
+import datetime
+from datetime import tzinfo
 
 df = pd.DataFrame(columns=["ID", "Time", "Latitude", "Longitude", "Altitude"])
 
@@ -58,13 +60,24 @@ def parse_gpgga(sentence, kml_file):
 def valid_gpgga(sentence):
     if len(sentence) != 15:
         return False
-    return True;
+    return True
 
 
 def valid_gprmc(sentence):
     if len(sentence) != 13:
         return False
-    return True;
+    return True
+
+def elapsed_seconds(start, end):
+    if len(start) != len(end) != 10:
+        # not the proper format
+        return -1
+    hours = (int(end[0:2]) - int(start[0:2])) * 3600
+    minutes = (int(end[2:4]) - int(start[2:4])) * 60
+    seconds = int(end[4:6]) - int(start[4:6])
+    millis = float(end[6:]) - float(start[6:])
+    return ((int(end[0:2]) - int(start[0:2])) * 3600) + ((int(end[2:4]) - int(start[2:4])) * 60) + (int(end[4:6]) - int(start[4:6])) + (float(end[6:]) - float(start[6:]))
+
 
 
 # Calcuation the bearings hear and getting the dif
@@ -86,6 +99,7 @@ def kml_writer(gps_file, kml_file):
     write_to_file(kml_file, header)
     start_track = False
     stopped = False
+    stopped_time = -1
     straight_line = False
     start_loc = []
     second_loc = []
@@ -99,18 +113,19 @@ def kml_writer(gps_file, kml_file):
             try:
                 sentence = nmea.parse(line)
                 line_split = line.split(",")
+                # print(str(line_split) + " ", end="")
                 if line_split[0] == "$GPGGA":
                     if not valid_gpgga(line_split):
                         continue
                     lat = float(line_split[2])
                     long = float(line_split[6])
-                    print("gpgga")
+                    # print("gpgga")
                     # this method needs the name of the kml file because
                     # we are only using GPGGA sentences to write kml
                     if start_track and (not straight_line and not stopped):
                         parse_gpgga(sentence, kml_file)
                     if stopped:
-                        # reset straight line traking
+                        # reset straight line tracking
                         start_loc = []
                         cur_loc = []
                         second_loc = []
@@ -132,7 +147,7 @@ def kml_writer(gps_file, kml_file):
                 elif line_split[0] == "$GPRMC":
                     if not valid_gprmc(line_split):
                         continue
-                    print("gprmc")
+                    # print("gprmc")
                     # car has started moving
                     speed = float(line_split[7])
                     if speed >= 1:
@@ -140,9 +155,19 @@ def kml_writer(gps_file, kml_file):
 
                     # car has stopped
                     if speed < 1:
-                        stopped = True
+                        # weren't stopped until now, car has just stopped
+                        if not stopped:
+                            stopped = True
+                            stopped_time = line_split[1]
                     else:
-                        stopped = False
+                        # have been stopped up until now
+                        if stopped:
+                            stopped = False
+                            elapsed = elapsed_seconds(stopped_time, line_split[1])
+
+                            # if stopped for more than 3 minutes
+                            if elapsed > 180:
+                                print("elapsed: " + str(elapsed) + " from " + stopped_time + " to " + line_split[1])
                     parse_gprmc(sentence)
             except nmea.ParseError as e:
                 # if there is an error, report and skip
