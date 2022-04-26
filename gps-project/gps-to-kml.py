@@ -55,7 +55,7 @@ def parse_gpgga(sentence, kml_file):
     write_to_file(kml_file, string_to_append_to_kml)
 
 
-# TODO: is this enought for checking before parsing?
+# TODO: is this enough for checking before parsing?
 def valid_gpgga(sentence):
     if len(sentence) != 15:
         return False
@@ -68,7 +68,7 @@ def valid_gprmc(sentence):
     return True;
 
 
-# Calcuation the bearings hear and getting the dif
+# Calculate the bearings here and getting the difference
 def angle_dif(origin, coord, cur_loc):
     bear_one = geo.Geodesic.WGS84.Inverse(origin[0], origin[1], coord[0], coord[1])['azi1']
     bear_two = geo.Geodesic.WGS84.Inverse(origin[0], origin[1], cur_loc[0], cur_loc[1])['azi1']
