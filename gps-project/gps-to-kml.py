@@ -2,8 +2,7 @@ import sys
 import pandas as pd
 import pynmea2 as nmea
 import geographiclib.geodesic as geo
-import datetime
-from datetime import tzinfo
+
 
 df = pd.DataFrame(columns=["ID", "Time", "Latitude", "Longitude", "Altitude"])
 
@@ -56,14 +55,23 @@ def parse_gpgga(sentence, kml_file):
     write_to_file(kml_file, string_to_append_to_kml)
 
 
-# TODO: is this enought for checking before parsing?
 def valid_gpgga(sentence):
+    """
+    checks validity of gpgga sentence
+    :param sentence: sentence to validate
+    :return: None
+    """
     if len(sentence) != 15:
         return False
     return True
 
 
 def valid_gprmc(sentence):
+    """
+    checks validity of gprmc sentence
+    :param sentence: sentence to validate
+    :return: None
+    """
     if len(sentence) != 13:
         return False
     return True
@@ -77,12 +85,13 @@ def elapsed_seconds(start, end):
     minutes = (int(end[2:4]) - int(start[2:4])) * 60
     seconds = int(end[4:6]) - int(start[4:6])
     millis = float(end[6:]) - float(start[6:])
-    return ((int(end[0:2]) - int(start[0:2])) * 3600) + ((int(end[2:4]) - int(start[2:4])) * 60) + (
-                int(end[4:6]) - int(start[4:6])) + (float(end[6:]) - float(start[6:]))
+    return hours + minutes + seconds + millis
 
 
-# Calcuation the bearings hear and getting the dif
 def angle_dif(origin, coord, cur_loc):
+    """
+    calculate bearings and getting the difference
+    """
     bear_one = geo.Geodesic.WGS84.Inverse(origin[0], origin[1], coord[0], coord[1])['azi1']
     bear_two = geo.Geodesic.WGS84.Inverse(origin[0], origin[1], cur_loc[0], cur_loc[1])['azi1']
     return abs(bear_one - bear_two)
@@ -177,16 +186,16 @@ def kml_writer(gps_file, kml_file):
                 print('Error: {}'.format(e))
                 continue
 
-
     # write coordinates footer to kml file
     coords_footer = open("kml_coordinates_footer.txt", "r").read()
     write_to_file(kml_file, coords_footer)
-
+    # make purple pin to show stops
     pin_header = open("kml_pin_header.txt").read()
     pin_footer = open("kml_pin_footer.txt").read()
     # <coordinates>102.594411,14.998518</coordinates>
     for stop in stops:
-        write_to_file(kml_file, pin_header + "      <coordinates>{north},{west}</coordinates>\n".format(north=stop[1], west=stop[0]) + pin_footer)
+        write_to_file(kml_file, pin_header + "      <coordinates>{north},{west}</coordinates>\n"
+                      .format(north=stop[1], west=stop[0]) + pin_footer)
 
     footer = open("kml_footer.txt").read()
     write_to_file(kml_file, footer)
