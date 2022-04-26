@@ -100,6 +100,7 @@ def kml_writer(gps_file, kml_file):
     start_track = False
     stopped = False
     stopped_time = -1
+    stops = []
     straight_line = False
     start_loc = []
     second_loc = []
@@ -113,12 +114,12 @@ def kml_writer(gps_file, kml_file):
             try:
                 sentence = nmea.parse(line)
                 line_split = line.split(",")
-                # print(str(line_split) + " ", end="")
+                # print(str(line_split) + " ")
                 if line_split[0] == "$GPGGA":
                     if not valid_gpgga(line_split):
                         continue
                     lat = float(line_split[2])
-                    long = float(line_split[6])
+                    long = float(line_split[4])
                     # print("gpgga")
                     # this method needs the name of the kml file because
                     # we are only using GPGGA sentences to write kml
@@ -167,14 +168,26 @@ def kml_writer(gps_file, kml_file):
 
                             # if stopped for more than 3 minutes
                             if elapsed > 180:
-                                print("elapsed: " + str(elapsed) + " from " + stopped_time + " to " + line_split[1])
+                                stops.append((round(sentence.latitude, 6), round(sentence.longitude, 6)))
+
                     parse_gprmc(sentence)
             except nmea.ParseError as e:
                 # if there is an error, report and skip
                 print('Error: {}'.format(e))
                 continue
-    # write footer to kml file
-    footer = open("kml_footer.txt", "r").read()
+
+
+    # write coordinates footer to kml file
+    coords_footer = open("kml_coordinates_footer.txt", "r").read()
+    write_to_file(kml_file, coords_footer)
+
+    pin_header = open("kml_pin_header.txt").read()
+    pin_footer = open("kml_pin_footer.txt").read()
+    # <coordinates>102.594411,14.998518</coordinates>
+    for stop in stops:
+        write_to_file(kml_file, pin_header + "      <coordinates>{north},{west}</coordinates>\n".format(north=stop[1], west=stop[0]) + pin_footer)
+
+    footer = open("kml_footer.txt").read()
     write_to_file(kml_file, footer)
 
 
