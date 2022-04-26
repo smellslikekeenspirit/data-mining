@@ -68,6 +68,7 @@ def valid_gprmc(sentence):
         return False
     return True
 
+
 def elapsed_seconds(start, end):
     if len(start) != len(end) != 10:
         # not the proper format
@@ -76,8 +77,8 @@ def elapsed_seconds(start, end):
     minutes = (int(end[2:4]) - int(start[2:4])) * 60
     seconds = int(end[4:6]) - int(start[4:6])
     millis = float(end[6:]) - float(start[6:])
-    return ((int(end[0:2]) - int(start[0:2])) * 3600) + ((int(end[2:4]) - int(start[2:4])) * 60) + (int(end[4:6]) - int(start[4:6])) + (float(end[6:]) - float(start[6:]))
-
+    return ((int(end[0:2]) - int(start[0:2])) * 3600) + ((int(end[2:4]) - int(start[2:4])) * 60) + (
+                int(end[4:6]) - int(start[4:6])) + (float(end[6:]) - float(start[6:]))
 
 
 # Calcuation the bearings hear and getting the dif
