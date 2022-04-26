@@ -1,0 +1,11 @@
+<Placemark>
+    <description>Red PIN for A Stopsign</description>
+    <Style id="normalPlacemark">
+        <IconStyle>
+            <color>ff800080</color>
+            <Icon>
+                <href>http://maps.google.com/mapfiles/kml/paddle/1.png</href>
+            </Icon>
+        </IconStyle>
+    </Style>
+    <Point>
