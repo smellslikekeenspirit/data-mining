@@ -4,7 +4,7 @@ def read_input(fp):
     # TODO: What should the data be rounded to?
     fp.write('if __name__ == \'__main__\':\n')
     fp.write('\tdata = []\n\n')
-    fp.write('\t#reads in the unlabeled data from the csv\n')
+    fp.write('\t# reads in the unlabeled data from the csv\n')
     fp.write('\twith open(\'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv\', \'r\') as file:\n')
     fp.write('\t\tfile.readline()\n')
     fp.write('\t\tfor line in file:\n')
@@ -14,7 +14,7 @@ def read_input(fp):
 
 
 def create_classifier(fp, n_stumps):
-    fp.write('def classifier(record)\n')
+    fp.write('def classifier(record):\n')
     fp.write('\tanswer = 0\n')
 
     # Decision Stumps
@@ -22,9 +22,9 @@ def create_classifier(fp, n_stumps):
 
     # Return result
     fp.write('\tif answer < 0:\n')
-    fp.write('\t\t return -1\n')
+    fp.write('\t\treturn -1\n')
     fp.write('\telse:\n')
-    fp.write('\t\treturn 1')
+    fp.write('\t\treturn 1\n\n\n')
 
 
 def call_classifier(fp):
