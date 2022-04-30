@@ -1,6 +1,7 @@
 
 
 def read_input(fp):
+    # TODO: What should the data be rounded to?
     fp.write('if __name__ == \'__main__\':\n')
     fp.write('\tdata = []\n\n')
     fp.write('\t#reads in the unlabeled data from the csv\n')
@@ -12,25 +13,32 @@ def read_input(fp):
     fp.write('\t\t\t\tdata.append(float(val))\n\n')
 
 
-def create_forest(fp, n_stumps):
-    print(n_stumps)
+def create_classifier(fp, n_stumps):
+    fp.write('def classifier(record)\n')
+    fp.write('\tanswer = 0\n')
+
+    # Decision Stumps
 
 
-def trailer(fp):
-    fp.write('\tif answer <= 0:\n')
-    fp.write('\t\treturn -1\n')
+    # Return result
+    fp.write('\tif answer < 0:\n')
+    fp.write('\t\t return -1\n')
     fp.write('\telse:\n')
     fp.write('\t\treturn 1')
+
+
+def call_classifier(fp):
+    fp.write('\tfor record in data:\n')
+    fp.write('\t\tprint(classifier(record))\n')
+    # TODO: what to do with the classifications
 
 
 if __name__ == '__main__':
     n_stumps = [1, 2, 4, 8, 10, 20, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400]
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
+    create_classifier(fp, n_stumps)
     read_input(fp)
-    create_forest(fp, n_stumps)
-    trailer(fp)
-
-    fp.close()
+    call_classifier(fp)
 
     fp.close()
