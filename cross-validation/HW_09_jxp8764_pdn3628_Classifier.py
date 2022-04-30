@@ -1,25 +1,26 @@
 def classifier(record):
 	answer = 0
+
 	# Decision Stump Number 1
-	if record[4] <= 4:
+	if record[1] > 189:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record[1] <= 137:
+	if record[4] <= 5:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 3
-	if record[5] <= 129:
+	if record[6] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 4
-	if record[4] <= 8:
+	if record[1] > 194:
 		answer = answer - 1
 	else:
 		answer = answer + 1

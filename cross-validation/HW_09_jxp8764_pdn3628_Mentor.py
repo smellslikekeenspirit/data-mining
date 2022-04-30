@@ -14,7 +14,7 @@ def read_input(fp):
     fp.write('\t\t\t\tdata.append(float(val))\n\n')
 
 
-def create_classifier(fp, data, class_ids, n_stumps):
+def create_classifier(fp, data, class_ids, stump_count):
     fp.write('def classifier(record):\n')
     fp.write('\tanswer = 0\n\n')
 
@@ -24,16 +24,34 @@ def create_classifier(fp, data, class_ids, n_stumps):
         print(data[index])
         attr_range.append([np_arr.min(), np_arr.max()])
 
-    # TODO: Determine how many stumps to use
-    stump_count = n_stumps[2]
     # Decision Stumps
     for stump in range(stump_count):
         attr_index = random.randint(0, len(data) - 1)
         [min_val, max_val] = attr_range[attr_index]
         threshold = random.randint(int(min_val), int(max_val))
-        print(threshold, min_val, max_val)
+        # Determine majority case
+        hit = 0
+        miss = 0
+        values = data[attr_index]
+        for index in range(len(values)):
+            if values[index] <= threshold:
+                if int(class_ids[index]) == -1:
+                    hit = hit + 1
+                else:
+                    miss = miss + 1
+            else:
+                if int(class_ids[index] == 1):
+                    hit = hit + 1
+                else:
+                    miss = miss + 1
+
+        sign = ''
+        if hit > miss:
+            sign = '<='
+        else:
+            sign = '>'
         fp.write('\t# Decision Stump Number %s\n' % (stump + 1))
-        fp.write('\tif record[%s] <= %s:\n' % (attr_index, threshold))
+        fp.write('\tif record[%s] %s %s:\n' % (attr_index, sign, threshold))
         fp.write('\t\tanswer = answer - 1\n')
         fp.write('\telse:\n')
         fp.write('\t\tanswer = answer + 1\n\n')
@@ -64,9 +82,12 @@ if __name__ == '__main__':
             for index in range(len(attributes) - 2):
                 data[index].append(float(attributes[index]))
             class_ids.append(int(attributes[-1]))
+
+    # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
-    create_classifier(fp, data, class_ids, n_stumps)
+    # TODO: deterine how many stumps we need to use
+    create_classifier(fp, data, class_ids, n_stumps[2])
     read_input(fp)
     call_classifier(fp)
 
