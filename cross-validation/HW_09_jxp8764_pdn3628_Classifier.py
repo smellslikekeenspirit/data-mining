@@ -2,25 +2,25 @@ def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record[3] <= 17:
+	if record[6] <= 0:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record[0] > 86:
+	if record[2] > 14:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 3
-	if record[0] > 164:
+	if record[0] > 60:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 4
-	if record[0] <= 24:
+	if record[3] <= 16:
 		answer = answer - 1
 	else:
 		answer = answer + 1
@@ -43,6 +43,8 @@ if __name__ == '__main__':
 				val = float(row[index])
 				if index == 1:
 					val = int(round(val / 4.0) * 4)
+				elif index == 6:
+					val = int(round(val / 2.0, 1) * 4)
 				else:
 					val = int(round(val / 2.0) * 2)
 				data.append(val)

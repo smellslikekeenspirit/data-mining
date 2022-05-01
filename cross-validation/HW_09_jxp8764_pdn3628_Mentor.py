@@ -14,6 +14,8 @@ def read_input(fp):
     fp.write('\t\t\t\tval = float(row[index])\n')
     fp.write('\t\t\t\tif index == 1:\n')
     fp.write('\t\t\t\t\tval = int(round(val / 4.0) * 4)\n')
+    fp.write('\t\t\t\telif index == 6:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 2.0, 1) * 4)\n')
     fp.write('\t\t\t\telse:\n')
     fp.write('\t\t\t\t\tval = int(round(val / 2.0) * 2)\n')
     fp.write('\t\t\t\tdata.append(val)\n\n')
@@ -88,6 +90,9 @@ if __name__ == '__main__':
                 val = float(attributes[index])
                 if index == 1:
                     val = int(round(val / 4.0) * 4)
+                elif index == 6:
+                    # need a round earlobes different, because default rounding function has 0.5 become 0
+                    val = int(round(val / 2.0, 1) * 4)
                 else:
                     val = int(round(val / 2.0) * 2)
                 data[index].append(val)
