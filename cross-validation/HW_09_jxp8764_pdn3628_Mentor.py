@@ -10,8 +10,13 @@ def read_input(fp):
     fp.write('\t\tfile.readline()\n')
     fp.write('\t\tfor line in file:\n')
     fp.write('\t\t\trow = line.strip().split(",")\n')
-    fp.write('\t\t\tfor val in row:\n')
-    fp.write('\t\t\t\tdata.append(float(val))\n\n')
+    fp.write('\t\t\tfor index in range(len(row)):\n')
+    fp.write('\t\t\t\tval = float(row[index])\n')
+    fp.write('\t\t\t\tif index == 1:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 4.0) * 4)\n')
+    fp.write('\t\t\t\telse:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 2.0) * 2)\n')
+    fp.write('\t\t\t\tdata.append(val)\n\n')
 
 
 def create_classifier(fp, data, class_ids, stump_count):
@@ -80,13 +85,18 @@ if __name__ == '__main__':
         for line in dataFile:
             attributes = line.strip().split(",")
             for index in range(len(attributes) - 2):
-                data[index].append(float(attributes[index]))
+                val = float(attributes[index])
+                if index == 1:
+                    val = int(round(val / 4.0) * 4)
+                else:
+                    val = int(round(val / 2.0) * 2)
+                data[index].append(val)
             class_ids.append(int(attributes[-1]))
 
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
-    # TODO: deterine how many stumps we need to use
+    # TODO: determine how many stumps we need to use
     create_classifier(fp, data, class_ids, n_stumps[2])
     read_input(fp)
     call_classifier(fp)
