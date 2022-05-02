@@ -1,16 +1,78 @@
 # Prionti Nasir, Justin Palmer
 import sys
+import numpy as np
+import math
 
 
-# TODO
-def best_thresh(points, class_id, bin_size, attr_index):
+def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
+    best_entropy = 1.1
+    attr_vals = []
+    for record in points:
+        attr_vals.append(record[attr_index])
+    np_arr = np.array(attr_vals)
+    threshold = np_arr.min()
+    max = np_arr.max()
+    best_threshold = 0
+
+    while threshold < max:
+        left_class = []
+        right_class = []
+        for index in range(len(attr_vals)):
+            if attr_vals[index] <= threshold:
+                left_class.append(class_id[index])
+            else:
+                right_class.append(class_id[index])
+        assam_count = 0
+        bhuttan_count = 0
+        for index in range(len(left_class)):
+            if left_class[index] == 1:
+                bhuttan_count = bhuttan_count + 1
+            else:
+                assam_count = assam_count + 1
+
+        prob_b = bhuttan_count / len(left_class)
+        prob_a = assam_count / len(left_class)
+        left_entropy = 0
+        # the log base 2 function throws an error when the probability is 0
+        if prob_b == 0:
+            left_entropy = 0 - (prob_a * math.log2(prob_a))
+        elif prob_a == 0:
+            left_entropy = 0 - (prob_b * math.log2(prob_b))
+        else:
+            left_entropy = 0 - (prob_b * math.log2(prob_b)) - (prob_a * math.log2(prob_a))
+
+        assam_count = 0
+        bhuttan_count = 0
+        for index in range(len(right_class)):
+            if right_class[index] == 1:
+                bhuttan_count = bhuttan_count + 1
+            else:
+                assam_count = assam_count + 1
+
+        prob_b = bhuttan_count / len(right_class)
+        prob_a = assam_count / len(right_class)
+        right_entropy = 0
+        if prob_b == 0:
+            right_entropy = 0 - (prob_a * math.log2(prob_a))
+        elif prob_a == 0:
+            right_entropy = 0 - (prob_b * math.log2(prob_b))
+        else:
+            right_entropy = 0 - (prob_b * math.log2(prob_b)) - (prob_a * math.log2(prob_a))
+
+        weighted_entropy = ((len(left_class)/len(attr_vals)) * left_entropy)\
+                           + (len(right_class)/len(attr_vals) * right_entropy)
+        if weighted_entropy < best_entropy:
+            best_entropy = weighted_entropy
+            best_threshold = threshold
+        threshold = threshold + bin_size
     # need to return weighted entropy, index to split, value to split at
-    return [0, int(len(points)/2), 5.0]
+    return [best_threshold, best_entropy]
 
 
 def build_classification(fp, data, classification, level):
     best_rule_thresh = sys.float_info.max
-    best_rule_index = -1
+    best_weighted_entropy = sys.float_info.max
+    attr_index = -1
 
     purity = 0.0
     for class_id in classification:
@@ -33,20 +95,27 @@ def build_classification(fp, data, classification, level):
         bin = 2
         if index == 1:
             bin = 4
-        attr_eval = best_thresh(data, classification, bin, index)
-        if attr_eval[2] < best_rule_thresh:
-            best_rule_thresh = attr_eval[0]
-            best_rule_index = index
-            split_index = attr_eval[1]
+        [thresh, entropy] = best_min_entropy_threshold(data, classification, bin, index)
+        if entropy < best_weighted_entropy:
+            best_rule_thresh = thresh
+            best_weighted_entropy = entropy
+            attr_index = index
 
-    fp.write('%sif data[%d] <= %d:\n' % (tabs, best_rule_index, best_rule_thresh))
-    left_partition = data[:split_index+1]
-    left_class = classification[:split_index+1]
+    left_partition = []
+    left_class = []
+    right_partition = []
+    right_class = []
+    for row_index in range(len(data)):
+        if data[row_index][attr_index] <= best_rule_thresh:
+            left_partition.append(data[row_index])
+            left_class.append(classification[row_index])
+        else:
+            right_partition.append(data[row_index])
+            right_class.append(classification[row_index])
+    fp.write('%sif data[%d] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
     build_classification(fp, left_partition, left_class, level + 1)
 
     fp.write('%selse:\n' % tabs)
-    right_partition = data[split_index:]
-    right_class = classification[split_index+1:]
     build_classification(fp, right_partition, right_class, level + 1)
     return
 
