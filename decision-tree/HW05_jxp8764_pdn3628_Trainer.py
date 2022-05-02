@@ -30,6 +30,9 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
             else:
                 right_class.append(class_id[index])
 
+        if len(left_class) == 0 or len(right_class) == 0:
+            threshold = threshold + bin_size
+            continue
         # calculate weighted entropy for left nodes
         assam_count = 0
         bhuttan_count = 0
@@ -118,6 +121,7 @@ def build_classification(fp, data, classification, level):
             best_weighted_entropy = entropy
             attr_index = index
 
+    print(best_rule_thresh, best_weighted_entropy)
     left_partition = []
     left_class = []
     right_partition = []
@@ -132,7 +136,7 @@ def build_classification(fp, data, classification, level):
             right_class.append(classification[row_index])
 
     # left split of the data
-    fp.write('%sif data[%d] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
+    fp.write('%sif record[%d] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
     build_classification(fp, left_partition, left_class, level + 1)
 
     # right split of the data
@@ -151,9 +155,18 @@ def read_input(fp):
     fp.write('\twith open(\'Abominable_VALIDATION_Data_FOR_STUDENTS_v750_2215.csv\', \'r\') as file:\n')
     fp.write('\t\tfile.readline()\n')
     fp.write('\t\tfor line in file:\n')
+    fp.write('\t\t\tvalues = []\n')
     fp.write('\t\t\trow = line.strip().split(",")\n')
-    fp.write('\t\t\tfor val in row:\n')
-    fp.write('\t\t\t\tdata.append(float(val))\n\n')
+    fp.write('\t\t\tfor index in range(len(row)):\n')
+    fp.write('\t\t\t\tval = float(row[index])\n')
+    fp.write('\t\t\t\tif index == 1:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 4.0) * 4)\n')
+    fp.write('\t\t\t\telif index == 6:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 2.0, 1) * 4)\n')
+    fp.write('\t\t\t\telse:\n')
+    fp.write('\t\t\t\t\tval = int(round(val / 2.0) * 2)\n')
+    fp.write('\t\t\t\tvalues.append(val)\n')
+    fp.write('\t\t\tdata.append(values)\n\n')
 
 
 """
