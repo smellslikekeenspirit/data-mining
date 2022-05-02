@@ -187,7 +187,7 @@ def read_input(fp):
     fp.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
     fp.write('\tclean_data[\'EarLobes\'] = data[\'EarLobes\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\t\tlambda x: math.ceil(x / AGE_BIN) * AGE_BIN)\n')
     fp.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n')
     fp.write('\tfor index, row in data.iterrows():\n')
@@ -252,7 +252,7 @@ def read_data_file(data_file_name):
     clean_data['Reach'] = data['Reach'].apply(
         lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
     clean_data['EarLobes'] = data['EarLobes'].apply(
-        lambda x: round(x / AGE_BIN) * 4)
+        lambda x: math.ceil(x / AGE_BIN) * AGE_BIN)
     clean_data['Ht'] = data['Ht'].apply(
         lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
     for index, row in data.iterrows():
@@ -266,7 +266,7 @@ Reads in the training data and quantizes the data
 """
 if __name__ == '__main__':
     df, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
-    # write_decision_tree(df, classification)
+    write_decision_tree(df, classification)
     HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
     with open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'r') as f:
         # assuming target class is Assam
