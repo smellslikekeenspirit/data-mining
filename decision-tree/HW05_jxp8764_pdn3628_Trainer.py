@@ -159,7 +159,6 @@ def build_classification(fp, data, classification, level):
 def file_header(fp):
     fp.write('import math\n')
     fp.write('import os\n')
-    fp.write('import sys\n')
     fp.write('import pandas\n')
     fp.write('import sys\n\n')
 
@@ -186,6 +185,8 @@ def read_input(fp):
     fp.write('\tclean_data[\'BangLn\'] = data[\'BangLn\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
     fp.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'EarLobes\'] = data[\'EarLobes\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
     fp.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n')
@@ -227,16 +228,18 @@ Opens up the file to write out the classification. Then starts writting to it
 
 def write_decision_tree(data, classification):
     fp = open('HW05_jxp8764_pdn3628_Trained_Classifier.py', 'w')
+
+    file_header(fp)
     read_input(fp)
     classify_data(fp, data, classification)
-    output_classification(fp)
+
     fp.close()
 
 
 def read_data_file(data_file_name):
     data_file_path = os.path.join(os.getcwd(), data_file_name)
     data = pandas.read_csv(data_file_path, delimiter=',')
-    clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach']].round(decimals=0)
+    clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age']].round(decimals=0)
     classification = []
     clean_data['Age'] = data['Age'].apply(
         lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
@@ -248,6 +251,8 @@ def read_data_file(data_file_name):
         lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
     clean_data['Reach'] = data['Reach'].apply(
         lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+    clean_data['EarLobes'] = data['EarLobes'].apply(
+        lambda x: round(x / AGE_BIN) * 4)
     clean_data['Ht'] = data['Ht'].apply(
         lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
     for index, row in data.iterrows():
