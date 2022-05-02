@@ -156,6 +156,15 @@ def build_classification(fp, data, classification, level):
     build_classification(fp, right_partition, right_class, level + 1)
     return
 
+def file_header(fp):
+    fp.write('import math\n')
+    fp.write('import os\n')
+    fp.write('import sys\n')
+    fp.write('import pandas\n')
+    fp.write('import sys\n\n')
+
+    fp.write('AGE_BIN = 2\n')
+    fp.write('HEIGHT_BIN = 4\n')
 
 """
 Reads in the unlabeled data and stores the columns in an array
@@ -163,25 +172,26 @@ Reads in the unlabeled data and stores the columns in an array
 
 
 def read_input(fp):
-    fp.write('import sys\n\n')
-    fp.write('def classify(filename):\n')
-    fp.write('\tdata = []\n\n')
-    fp.write('\t#reads in the unlabeled data from the csv\n')
-    fp.write('\twith open(filename) as file:\n')
-    fp.write('\t\tfile.readline()\n')
-    fp.write('\t\tfor line in file:\n')
-    fp.write('\t\t\tvalues = []\n')
-    fp.write('\t\t\trow = line.strip().split(",")\n')
-    fp.write('\t\t\tfor index in range(len(row)):\n')
-    fp.write('\t\t\t\tval = float(row[index])\n')
-    fp.write('\t\t\t\tif index == 1:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 4.0) * 4)\n')
-    fp.write('\t\t\t\telif index == 6:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 2.0, 1) * 4)\n')
-    fp.write('\t\t\t\telse:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 2.0) * 2)\n')
-    fp.write('\t\t\t\tvalues.append(val)\n')
-    fp.write('\t\t\tdata.append(values)\n\n')
+    fp.write('def read_data_file(data_file_name):\n')
+    fp.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
+    fp.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
+    fp.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\']].round(decimals=0)\n')
+    fp.write('\tclassification = []\n')
+    fp.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'TailLn\'] = data[\'TailLn\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'HairLn\'] = data[\'HairLn\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'BangLn\'] = data[\'BangLn\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
+    fp.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
+    fp.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n')
+    fp.write('\tfor index, row in data.iterrows():\n')
+    fp.write('\t\tclassification.append(row[\'ClassID\'])\n')
+    fp.write('\treturn clean_data.astype(int), classification\n\n\n')
 
 
 """
@@ -190,28 +200,22 @@ The one rule classification for unlabeled data
 
 
 def classify_data(fp, data, classification):
+    fp.write('def classify(filename):\n')
+    fp.write('\tdata, labels = read_data_file(\'Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv\')\n')
     fp.write('\t# classifies the unlabled data\n')
     fp.write('\tclassification = []\n')
     fp.write('\tclass_id = 0\n')
-    fp.write('\tfor record in data:\n')
+    fp.write('\tfor index, record in data.iterrows():\n')
     build_classification(fp, data, classification, 0)
     fp.write('\t\tclassification.append(class_id)\n')
     fp.write('\t\t# Print out here for the grader\n')
-    fp.write('\t\tprint(class_id)\n')
-
-
-"""
-Writes the now classified data to a csv file
-The order of the elements is the order the data was read in
-"""
-
-
-def output_classification(fp):
+    fp.write('\t\tprint(class_id)\n\n')
     fp.write('\t# writes out the classifications to a csv\n')
     fp.write('\tfp = open(\'HW05_jxp8764_pdn3628_MyClassifications.csv\', \'w\')\n')
     fp.write('\tfor class_type in classification:\n')
     fp.write('\t\tfp.write(\'%s\\n\' % class_type)\n')
-    fp.write('\tfp.close()\n')
+    fp.write('\tfp.close()\n\n\n')
+
     fp.write('if __name__ == \'__main__\':\n')
     fp.write('\tclassify(sys.argv[1])\n')
 
