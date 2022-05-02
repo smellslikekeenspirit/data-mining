@@ -3,9 +3,8 @@ import os
 import sys
 import numpy as np
 import math
-
 import pandas
-
+import HW05_jxp8764_pdn3628_Trained_Classifier
 
 """
 The cost function to determine the minimum weighted entropy
@@ -21,10 +20,8 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
     best_entropy = 1.1
     # determine range of thresholds to check
     attr_vals = []
-    print(points)
     for index, record in points.iterrows():
         attr_vals.append(record[attr_index])
-    print(attr_vals)
     np_arr = np.array(attr_vals)
     threshold = np_arr.min()
     max = np_arr.max()
@@ -33,14 +30,9 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
         # splits up the classes into left and right nodes
         left_class = []
         right_class = []
-        print("YOO!", len(left_class))
-        print("YOO!", len(right_class))
-        print("YOO!", len(class_id))
-        print("YOO!", len(attr_vals))
         for index in range(len(attr_vals)):
             if attr_vals[index] <= threshold:
                 left_class.append(class_id[index])
-                print(class_id[index])
             else:
                 right_class.append(class_id[index])
 
@@ -125,7 +117,6 @@ def build_classification(fp, data, classification, level):
             majority_class = purity / abs(purity)
         fp.write('%s\tclass_id = %d\n' % (tabs, majority_class))
         return
-    print("OK", data)
     for attribute in data.columns:
         bin = 2
         if attribute == 'Ht':
@@ -142,7 +133,6 @@ def build_classification(fp, data, classification, level):
     left_class = []
     right_partition = []
     right_class = []
-    print("YOO3", data, len(classification))
 
     # split the data along the threshold
     idx = 0
@@ -156,11 +146,9 @@ def build_classification(fp, data, classification, level):
         idx += 1
 
     left_partition = pandas.DataFrame(left_partition)
-    print("OK", left_partition)
     right_partition = pandas.DataFrame(right_partition)
     # left split of the data
     fp.write('%sif record[\'%s\'] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
-    print("YOO", len(left_partition), len(left_class))
     build_classification(fp, left_partition, left_class, level + 1)
 
     # right split of the data
@@ -234,12 +222,10 @@ Opens up the file to write out the classification. Then starts writting to it
 
 
 def write_decision_tree(data, classification):
-    fp = open('HW05_jxp8764_pdn3628_Trained_Classifier2.py', 'w')
-
+    fp = open('HW05_jxp8764_pdn3628_Trained_Classifier.py', 'w')
     read_input(fp)
     classify_data(fp, data, classification)
     output_classification(fp)
-
     fp.close()
 
 
@@ -272,4 +258,32 @@ Reads in the training data and quantizes the data
 if __name__ == '__main__':
     df, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
     write_decision_tree(df, classification)
-    # HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
+    HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
+    with open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'r') as f:
+        # assuming target class is Assam
+        true_positives = 0
+        true_negatives = 0
+        false_positives = 0
+        false_negatives = 0
+        records = []
+        for c in classification:
+            classifier_decision = int(f.readline().strip())
+            outcome = ""
+            if c == -1 and classifier_decision == -1:
+                true_positives += 1
+                outcome = "TP"
+            elif c == -1 and classifier_decision == 1:
+                false_negatives += 1
+                outcome = "FN"
+            elif c == 1 and classifier_decision == 1:
+                true_negatives += 1
+                outcome = "TN"
+            elif c == 1 and classifier_decision == -1:
+                false_positives += 1
+                outcome = "FP"
+            records.append([c, classifier_decision, outcome])
+        df = pandas.DataFrame(records, columns=['Actual Class', 'Classified Class', 'Outcome'])
+        print(df['Outcome'].value_counts())
+        print("Accurate guesses (TP+TN): ", true_positives+true_negatives)
+        print("Mistakes (FP+FN): ", false_positives+false_negatives)
+
