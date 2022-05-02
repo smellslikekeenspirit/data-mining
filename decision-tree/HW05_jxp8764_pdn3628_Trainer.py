@@ -257,33 +257,26 @@ Reads in the training data and quantizes the data
 """
 if __name__ == '__main__':
     df, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
-    write_decision_tree(df, classification)
+    # write_decision_tree(df, classification)
     HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
     with open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'r') as f:
         # assuming target class is Assam
-        true_positives = 0
-        true_negatives = 0
-        false_positives = 0
-        false_negatives = 0
         records = []
         for c in classification:
             classifier_decision = int(f.readline().strip())
             outcome = ""
             if c == -1 and classifier_decision == -1:
-                true_positives += 1
                 outcome = "TP"
             elif c == -1 and classifier_decision == 1:
-                false_negatives += 1
                 outcome = "FN"
             elif c == 1 and classifier_decision == 1:
-                true_negatives += 1
                 outcome = "TN"
             elif c == 1 and classifier_decision == -1:
-                false_positives += 1
                 outcome = "FP"
             records.append([c, classifier_decision, outcome])
         df = pandas.DataFrame(records, columns=['Actual Class', 'Classified Class', 'Outcome'])
-        print(df['Outcome'].value_counts())
-        print("Accurate guesses (TP+TN): ", true_positives+true_negatives)
-        print("Mistakes (FP+FN): ", false_positives+false_negatives)
+        frequency_table = df['Outcome'].value_counts()
+        print(frequency_table)
+        print("Accurate guesses (TP+TN): ", frequency_table.TP+frequency_table.TN)
+        print("Mistakes (FP+FN): ", frequency_table.FP+frequency_table.FN)
 

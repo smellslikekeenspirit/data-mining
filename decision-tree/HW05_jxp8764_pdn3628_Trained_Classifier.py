@@ -809,5 +809,7 @@ def classify(filename):
 	for class_type in classification:
 		fp.write('%s\n' % class_type)
 	fp.close()
+
+
 if __name__ == '__main__':
 	classify(sys.argv[1])
