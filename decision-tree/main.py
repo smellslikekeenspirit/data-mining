@@ -4,8 +4,14 @@ import numpy as np
 import math
 
 
+"""
+The cost function to determine the minimum weighted entropy
+possible for an attribute
+"""
 def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
+    # the entropy can at most be 1, so 1.1 is a good max value to start at
     best_entropy = 1.1
+    # determine range of thresholds to check
     attr_vals = []
     for record in points:
         attr_vals.append(record[attr_index])
@@ -15,6 +21,7 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
     best_threshold = 0
 
     while threshold < max:
+        # splits up the classes into left and right nodes
         left_class = []
         right_class = []
         for index in range(len(attr_vals)):
@@ -22,6 +29,8 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
                 left_class.append(class_id[index])
             else:
                 right_class.append(class_id[index])
+
+        # calculate weighted entropy for left nodes
         assam_count = 0
         bhuttan_count = 0
         for index in range(len(left_class)):
@@ -41,6 +50,7 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
         else:
             left_entropy = 0 - (prob_b * math.log2(prob_b)) - (prob_a * math.log2(prob_a))
 
+        # calculate weighted entropy for right nodes
         assam_count = 0
         bhuttan_count = 0
         for index in range(len(right_class)):
@@ -52,6 +62,7 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
         prob_b = bhuttan_count / len(right_class)
         prob_a = assam_count / len(right_class)
         right_entropy = 0
+        # the log base 2 function throws an error when the probability is 0
         if prob_b == 0:
             right_entropy = 0 - (prob_a * math.log2(prob_a))
         elif prob_a == 0:
@@ -59,21 +70,26 @@ def best_min_entropy_threshold(points, class_id, bin_size, attr_index):
         else:
             right_entropy = 0 - (prob_b * math.log2(prob_b)) - (prob_a * math.log2(prob_a))
 
+        # use best weighted_entropy
         weighted_entropy = ((len(left_class)/len(attr_vals)) * left_entropy)\
                            + (len(right_class)/len(attr_vals) * right_entropy)
         if weighted_entropy < best_entropy:
             best_entropy = weighted_entropy
             best_threshold = threshold
         threshold = threshold + bin_size
-    # need to return weighted entropy, index to split, value to split at
     return [best_threshold, best_entropy]
 
 
+"""
+Builds the decision tree classifier.
+Writes out each decision as the decision is made
+"""
 def build_classification(fp, data, classification, level):
     best_rule_thresh = sys.float_info.max
     best_weighted_entropy = sys.float_info.max
     attr_index = -1
 
+    # cases when to stop building the decision tree
     purity = 0.0
     for class_id in classification:
         purity += class_id
@@ -95,6 +111,7 @@ def build_classification(fp, data, classification, level):
         bin = 2
         if index == 1:
             bin = 4
+        # select attribute with the smallest weighted entropy
         [thresh, entropy] = best_min_entropy_threshold(data, classification, bin, index)
         if entropy < best_weighted_entropy:
             best_rule_thresh = thresh
@@ -105,6 +122,7 @@ def build_classification(fp, data, classification, level):
     left_class = []
     right_partition = []
     right_class = []
+    # split the data along the threshold
     for row_index in range(len(data)):
         if data[row_index][attr_index] <= best_rule_thresh:
             left_partition.append(data[row_index])
@@ -112,16 +130,20 @@ def build_classification(fp, data, classification, level):
         else:
             right_partition.append(data[row_index])
             right_class.append(classification[row_index])
+
+    # left split of the data
     fp.write('%sif data[%d] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
     build_classification(fp, left_partition, left_class, level + 1)
 
+    # right split of the data
     fp.write('%selse:\n' % tabs)
     build_classification(fp, right_partition, right_class, level + 1)
     return
 
 
-# TODO: check that this is the way we want to store data
-# Reads in the unlabeled data and stores the columns in an array
+"""
+Reads in the unlabeled data and stores the columns in an array
+"""
 def read_input(fp):
     fp.write('if __name__ == \'__main__\':\n')
     fp.write('\tdata = []\n\n')
@@ -134,7 +156,9 @@ def read_input(fp):
     fp.write('\t\t\t\tdata.append(float(val))\n\n')
 
 
-# The one rule classification for unlabeled data
+"""
+The one rule classification for unlabeled data
+"""
 def classify_data(fp, data, classification):
     fp.write('\t# classifies the unlabled data\n')
     fp.write('\tclassification = []\n')
@@ -142,10 +166,14 @@ def classify_data(fp, data, classification):
     fp.write('\tfor record in data:\n')
     build_classification(fp, data, classification, 0)
     fp.write('\t\tclassification.append(class_id)\n')
+    fp.write('\t\t# Print out here for the grader\n')
+    fp.write('\t\tprint(class_id)\n')
 
 
-# Writes the now classified data to a csv file
-# The order of the elements is the order the data was read in
+"""
+Writes the now classified data to a csv file
+The order of the elements is the order the data was read in
+"""
 def output_classification(fp):
     fp.write('\t# writes out the classifications to a csv\n')
     fp.write('\tfp = open(\'HW05_LastName_FirstName_MyClassifications.csv\', \'w\')\n')
@@ -154,6 +182,9 @@ def output_classification(fp):
     fp.write('\tfp.close()\n')
 
 
+"""
+Opens up the file to write out the classification. Then starts writting to it
+"""
 def write_decision_tree(data, classification):
     fp = open('HW05_LastName_FirstName_Trained_Classifier.py', 'w')
 
@@ -164,6 +195,9 @@ def write_decision_tree(data, classification):
     fp.close()
 
 
+"""
+Reads in the training data and quantizes the data
+"""
 if __name__ == '__main__':
     data = []
     classification = []
@@ -177,6 +211,9 @@ if __name__ == '__main__':
                 val = float(attributes[index])
                 if index == 1:
                     val = int(round(val / 4.0) * 4)
+                elif index == 6:
+                    # earlobes need to be round different, because 0.5 become 0 with this round function
+                    val = int(round(val / 2.0, 1) * 4)
                 else:
                     val = int(round(val / 2.0) * 2)
                 values.append(val)
