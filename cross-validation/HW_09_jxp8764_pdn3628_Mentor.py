@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import pandas as pd
 
 def read_input(fp):
     # TODO: What should the data be rounded to?
@@ -21,7 +22,36 @@ def read_input(fp):
     fp.write('\t\t\t\tdata.append(val)\n\n')
 
 
-def create_classifier(fp, data, class_ids, stump_count):
+def create_classifier(attr_range, data, class_ids, stump_count):
+    attr_index = random.randint(0, len(data) - 1)
+    [min_val, max_val] = attr_range[attr_index]
+    threshold = random.randint(int(min_val), int(max_val))
+    # Determine majority case
+    hit = 0
+    miss = 0
+    values = data[attr_index]
+    for index in range(len(values)):
+        if values[index] <= threshold:
+            if int(class_ids[index]) == -1:
+                hit = hit + 1
+            else:
+                miss = miss + 1
+        else:
+            if int(class_ids[index] == 1):
+                hit = hit + 1
+            else:
+                miss = miss + 1
+
+    sign = ''
+    if hit > miss:
+        sign = '<='
+    else:
+        sign = '>'
+
+    return attr_index, sign, threshold
+
+
+def write_classifier(fp, data, class_ids, stump_count):
     fp.write('def classifier(record):\n')
     fp.write('\tanswer = 0\n\n')
 
@@ -33,30 +63,7 @@ def create_classifier(fp, data, class_ids, stump_count):
 
     # Decision Stumps
     for stump in range(stump_count):
-        attr_index = random.randint(0, len(data) - 1)
-        [min_val, max_val] = attr_range[attr_index]
-        threshold = random.randint(int(min_val), int(max_val))
-        # Determine majority case
-        hit = 0
-        miss = 0
-        values = data[attr_index]
-        for index in range(len(values)):
-            if values[index] <= threshold:
-                if int(class_ids[index]) == -1:
-                    hit = hit + 1
-                else:
-                    miss = miss + 1
-            else:
-                if int(class_ids[index] == 1):
-                    hit = hit + 1
-                else:
-                    miss = miss + 1
-
-        sign = ''
-        if hit > miss:
-            sign = '<='
-        else:
-            sign = '>'
+        attr_index, sign, threshold = create_classifier(attr_range, data, class_ids, stump_count)
         fp.write('\t# Decision Stump Number %s\n' % (stump + 1))
         fp.write('\tif record[%s] %s %s:\n' % (attr_index, sign, threshold))
         fp.write('\t\tanswer = answer - 1\n')
@@ -75,6 +82,36 @@ def call_classifier(fp):
     fp.write('\tfor record in data:\n')
     fp.write('\t\tprint(classifier(record))\n')
     # TODO: what to do with the classifications
+
+
+def cross_validation(n_stumps, data, n):
+    number_of_records_per_fold = len(data) / n
+    folds = {}
+    data_assam = data[data['ClassID'] == '-1']
+    data_bhutan = data[data['ClassID'] == '+1']
+    toggle = 0
+    for i in range(0, n):
+        fold = []
+        for j in range(0, number_of_records_per_fold):
+            if toggle == 0:
+                fold.append(data_assam)
+
+
+
+
+    for count in n_stumps:
+        attr_range = []
+        for index in range(len(data)):
+            np_arr = np.array(data[index])
+            print(data[index])
+            attr_range.append([np_arr.min(), np_arr.max()])
+            for stump in range(count):
+                attr_index, sign, threshold = create_classifier(attr_range, data, class_ids, count)
+
+        create_classifier(fp, data, class_ids, count)
+        read_input(fp)
+        call_classifier(fp)
+    return 0
 
 
 if __name__ == '__main__':
@@ -100,9 +137,10 @@ if __name__ == '__main__':
 
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
-
+    labeled_df = pd.read_csv("Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv")
+    best_number_of_stumps = cross_validation(n_stumps, labeled_df, 10)
     # TODO: determine how many stumps we need to use
-    create_classifier(fp, data, class_ids, n_stumps[2])
+    write_classifier(fp, data, class_ids, best_number_of_stumps)
     read_input(fp)
     call_classifier(fp)
 
