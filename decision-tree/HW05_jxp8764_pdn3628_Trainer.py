@@ -121,7 +121,6 @@ def build_classification(fp, data, classification, level):
             best_weighted_entropy = entropy
             attr_index = index
 
-    print(best_rule_thresh, best_weighted_entropy)
     left_partition = []
     left_class = []
     right_partition = []
