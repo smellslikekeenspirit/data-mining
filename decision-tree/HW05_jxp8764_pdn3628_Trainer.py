@@ -176,7 +176,7 @@ The order of the elements is the order the data was read in
 """
 def output_classification(fp):
     fp.write('\t# writes out the classifications to a csv\n')
-    fp.write('\tfp = open(\'HW05_LastName_FirstName_MyClassifications.csv\', \'w\')\n')
+    fp.write('\tfp = open(\'HW05_jxp8764_pdn3628_MyClassifications.csv\', \'w\')\n')
     fp.write('\tfor class_type in classification:\n')
     fp.write('\t\tfp.write(\'%s\\n\' % class_type)\n')
     fp.write('\tfp.close()\n')
@@ -186,7 +186,7 @@ def output_classification(fp):
 Opens up the file to write out the classification. Then starts writting to it
 """
 def write_decision_tree(data, classification):
-    fp = open('HW05_LastName_FirstName_Trained_Classifier.py', 'w')
+    fp = open('HW05_jxp8764_pdn3628_Trained_Classifier.py', 'w')
 
     read_input(fp)
     classify_data(fp, data, classification)

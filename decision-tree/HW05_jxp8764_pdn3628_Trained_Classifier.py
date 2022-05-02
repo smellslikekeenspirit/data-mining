@@ -477,7 +477,7 @@ if __name__ == '__main__':
 		# Print out here for the grader
 		print(class_id)
 	# writes out the classifications to a csv
-	fp = open('HW05_LastName_FirstName_MyClassifications.csv', 'w')
+	fp = open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'w')
 	for class_type in classification:
 		fp.write('%s\n' % class_type)
 	fp.close()
