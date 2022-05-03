@@ -1,5 +1,7 @@
 import random
 import numpy as np
+import pandas as pd
+
 
 def read_input(fp):
     # TODO: What should the data be rounded to?
@@ -21,27 +23,33 @@ def read_input(fp):
     fp.write('\t\t\t\tdata.append(val)\n\n')
 
 
-def create_classifier(fp, data, class_ids, stump_count):
+def create_classifier(fp, data, class_ids, stump_count, number=""):
     fp.write('def classifier(record):\n')
     fp.write('\tanswer = 0\n\n')
 
     attr_range = []
-    for index in range(len(data)):
-        np_arr = np.array(data[index])
-        print(data[index])
-        attr_range.append([np_arr.min(), np_arr.max()])
-
+    for column in data.columns.drop('ClassID'):
+        column_values = data[column]
+        print(column)
+        print(column_values.min())
+        print(column_values.max())
+        attr_range.append([column_values.min(), column_values.max()])
     # Decision Stumps
     for stump in range(stump_count):
-        attr_index = random.randint(0, len(data) - 1)
-        [min_val, max_val] = attr_range[attr_index]
+        attrs = data.columns.drop('ClassID')
+        idx = random.randint(0, (len(attrs) - 1))
+        attr_index = attrs[idx]
+        [min_val, max_val] = attr_range[idx]
         threshold = random.randint(int(min_val), int(max_val))
+        print("YOOO", attr_range[idx], threshold)
         # Determine majority case
         hit = 0
         miss = 0
         values = data[attr_index]
+        print(values)
         for index in range(len(values)):
             if values[index] <= threshold:
+                print(values[index], threshold)
                 if int(class_ids[index]) == -1:
                     hit = hit + 1
                 else:
@@ -52,13 +60,12 @@ def create_classifier(fp, data, class_ids, stump_count):
                 else:
                     miss = miss + 1
 
-        sign = ''
         if hit > miss:
             sign = '<='
         else:
             sign = '>'
         fp.write('\t# Decision Stump Number %s\n' % (stump + 1))
-        fp.write('\tif record[%s] %s %s:\n' % (attr_index, sign, threshold))
+        fp.write('\tif record[\'%s\'] %s %s:\n' % (attr_index, sign, threshold))
         fp.write('\t\tanswer = answer - 1\n')
         fp.write('\telse:\n')
         fp.write('\t\tanswer = answer + 1\n\n')
@@ -77,33 +84,43 @@ def call_classifier(fp):
     # TODO: what to do with the classifications
 
 
+def cross_validation(n_stumps, data, n):
+    number_of_records_per_fold = int(len(data) / n)
+    folds = {}
+    data_assam = data[data['ClassID'] == -1]
+    data_bhutan = data[data['ClassID'] == 1]
+    toggle = 0
+    for i in range(0, n):
+        fold = []
+        for j in range(0, number_of_records_per_fold):
+            if toggle == 0:
+                fold.append(data_assam)
+                toggle = 1
+            else:
+                fold.append(data_bhutan)
+                toggle = 0
+
+    for count in n_stumps:
+        file = open('HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count), 'w')
+        create_classifier(file, data, class_ids, count)
+        read_input(file)
+        call_classifier(file)
+    return 0
+
+
 if __name__ == '__main__':
     n_stumps = [1, 2, 4, 8, 10, 20, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400]
     data = []
-    class_ids = []
-    with open('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv') as dataFile:
-        for _tmp in range(len(dataFile.readline().strip().split(",")) - 2):
-            data.append([])
-        for line in dataFile:
-            attributes = line.strip().split(",")
-            for index in range(len(attributes) - 2):
-                val = float(attributes[index])
-                if index == 1:
-                    val = int(round(val / 4.0) * 4)
-                elif index == 6:
-                    # need a round earlobes different, because default rounding function has 0.5 become 0
-                    val = int(round(val / 2.0, 1) * 4)
-                else:
-                    val = int(round(val / 2.0) * 2)
-                data[index].append(val)
-            class_ids.append(int(attributes[-1]))
-
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
-
+    # TODO: quantize
+    labeled_df = pd.read_csv("Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv")\
+        .drop(columns=['ClassName']).astype(int)
+    class_ids = labeled_df['ClassID']
+    best_number_of_stumps = cross_validation(n_stumps, labeled_df, 10)
     # TODO: determine how many stumps we need to use
-    create_classifier(fp, data, class_ids, n_stumps[2])
-    read_input(fp)
-    call_classifier(fp)
+    # write_classifier(fp, data, class_ids, best_number_of_stumps)
+    # read_input(fp)
+    # call_classifier(fp)
 
     fp.close()
