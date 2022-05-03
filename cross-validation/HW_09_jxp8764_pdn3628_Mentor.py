@@ -1,6 +1,12 @@
 import random
 import numpy as np
 import pandas as pd
+from . import HW_09_jxp8764_pdn3628_Classifier1, HW_09_jxp8764_pdn3628_Classifier2, HW_09_jxp8764_pdn3628_Classifier4
+from . import HW_09_jxp8764_pdn3628_Classifier8, HW_09_jxp8764_pdn3628_Classifier10, HW_09_jxp8764_pdn3628_Classifier20
+from . import HW_09_jxp8764_pdn3628_Classifier25, HW_09_jxp8764_pdn3628_Classifier35, HW_09_jxp8764_pdn3628_Classifier50
+from . import HW_09_jxp8764_pdn3628_Classifier75, HW_09_jxp8764_pdn3628_Classifier100, HW_09_jxp8764_pdn3628_Classifier150
+from . import HW_09_jxp8764_pdn3628_Classifier200, HW_09_jxp8764_pdn3628_Classifier250, HW_09_jxp8764_pdn3628_Classifier300
+from . import HW_09_jxp8764_pdn3628_Classifier400
 
 
 def read_input(fp):
@@ -84,15 +90,16 @@ def call_classifier(fp):
     # TODO: what to do with the classifications
 
 
-def cross_validation(n_stumps, data, n):
-    number_of_records_per_fold = int(len(data) / n)
+def cross_validation(n_stumps, data, n_folds=10):
+    number_of_records_per_fold = int(len(data) / n_folds)
     folds = {}
     data_assam = data[data['ClassID'] == -1]
     data_bhutan = data[data['ClassID'] == 1]
     toggle = 0
-    for i in range(0, n):
+
+    for num_fold in range(n_folds):
         fold = []
-        for j in range(0, number_of_records_per_fold):
+        for record_index in range(number_of_records_per_fold):
             if toggle == 0:
                 fold.append(data_assam)
                 toggle = 1
@@ -102,25 +109,33 @@ def cross_validation(n_stumps, data, n):
 
     for count in n_stumps:
         file = open('HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count), 'w')
+
         create_classifier(file, data, class_ids, count)
         read_input(file)
         call_classifier(file)
+
+        file.close()
+
+    for count in n_stumps:
+        file_name = 'HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count)
+        # call the function to classify to determine the fold
+
     return 0
 
 
 if __name__ == '__main__':
+    # files should do nothing for now
+    for count in n_stumps:
+        file = open('HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count), 'w')
+        file.write('def classifier(record):\n')
+        file.write('\traise Exception(\'Sorry, no numbers below zero\')\n\n')
     n_stumps = [1, 2, 4, 8, 10, 20, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400]
-    data = []
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
     # TODO: quantize
-    labeled_df = pd.read_csv("Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv")\
+    labeled_data = pd.read_csv("Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv")\
         .drop(columns=['ClassName']).astype(int)
-    class_ids = labeled_df['ClassID']
-    best_number_of_stumps = cross_validation(n_stumps, labeled_df, 10)
-    # TODO: determine how many stumps we need to use
-    # write_classifier(fp, data, class_ids, best_number_of_stumps)
-    # read_input(fp)
-    # call_classifier(fp)
+    class_ids = labeled_data['ClassID']
+    best_number_of_stumps = cross_validation(n_stumps, labeled_data)
 
     fp.close()
