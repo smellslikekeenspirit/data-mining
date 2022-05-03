@@ -1,34 +1,35 @@
-def classifier(record):
-	answer = 0
+class Classifier4:
+	def classifier(record):
+		answer = 0
 
-	# Decision Stump Number 1
-	if record['Ht'] > 224:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 1
+		if record['EarLobes'] > 1:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	# Decision Stump Number 2
-	if record['HairLn'] <= 6:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 2
+		if record['EarLobes'] > 1:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	# Decision Stump Number 3
-	if record['BangLn'] <= 7:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 3
+		if record['Reach'] > 178:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	# Decision Stump Number 4
-	if record['Age'] > 15:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 4
+		if record['Age'] > 19:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	if answer < 0:
-		return -1
-	else:
-		return 1
+		if answer < 0:
+			return -1
+		else:
+			return 1
 
 
 if __name__ == '__main__':

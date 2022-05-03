@@ -1,13 +1,41 @@
 import random
 import numpy as np
 import pandas as pd
-import HW_09_jxp8764_pdn3628_Classifier1, HW_09_jxp8764_pdn3628_Classifier2, HW_09_jxp8764_pdn3628_Classifier4
-import HW_09_jxp8764_pdn3628_Classifier8, HW_09_jxp8764_pdn3628_Classifier10, HW_09_jxp8764_pdn3628_Classifier20
-import HW_09_jxp8764_pdn3628_Classifier25, HW_09_jxp8764_pdn3628_Classifier35, HW_09_jxp8764_pdn3628_Classifier50
-import HW_09_jxp8764_pdn3628_Classifier75, HW_09_jxp8764_pdn3628_Classifier100, HW_09_jxp8764_pdn3628_Classifier150
-import HW_09_jxp8764_pdn3628_Classifier200, HW_09_jxp8764_pdn3628_Classifier250, HW_09_jxp8764_pdn3628_Classifier300
-import HW_09_jxp8764_pdn3628_Classifier400
 
+from HW_09_jxp8764_pdn3628_Classifier1 import Classifier1
+from HW_09_jxp8764_pdn3628_Classifier2 import Classifier2
+from HW_09_jxp8764_pdn3628_Classifier4 import Classifier4
+from HW_09_jxp8764_pdn3628_Classifier8 import Classifier8
+from HW_09_jxp8764_pdn3628_Classifier10 import Classifier10
+from HW_09_jxp8764_pdn3628_Classifier20 import Classifier20
+from HW_09_jxp8764_pdn3628_Classifier25 import Classifier25
+from HW_09_jxp8764_pdn3628_Classifier35 import Classifier35
+from HW_09_jxp8764_pdn3628_Classifier50 import Classifier50
+from HW_09_jxp8764_pdn3628_Classifier75 import Classifier75
+from HW_09_jxp8764_pdn3628_Classifier100 import Classifier100
+from HW_09_jxp8764_pdn3628_Classifier150 import Classifier150
+from HW_09_jxp8764_pdn3628_Classifier200 import Classifier200
+from HW_09_jxp8764_pdn3628_Classifier250 import Classifier250
+from HW_09_jxp8764_pdn3628_Classifier300 import Classifier300
+from HW_09_jxp8764_pdn3628_Classifier400 import Classifier400
+
+classifiers = {
+    1: Classifier1,
+    2: Classifier2,
+    4: Classifier4,
+    8: Classifier8,
+    10: Classifier10,
+    20: Classifier20,
+    25: Classifier25,
+    35: Classifier35,
+    50: Classifier50,
+    100: Classifier100,
+    150: Classifier150,
+    200: Classifier200,
+    250: Classifier250,
+    300: Classifier300,
+    400: Classifier400
+}
 
 def read_input(fp):
     # TODO: What should the data be rounded to?
@@ -30,8 +58,9 @@ def read_input(fp):
 
 
 def create_classifier(fp, data, class_ids, stump_count, number=""):
-    fp.write('def classifier(record):\n')
-    fp.write('\tanswer = 0\n\n')
+    fp.write('class Classifier%s:\n' % stump_count)
+    fp.write('\tdef classifier(record):\n')
+    fp.write('\t\tanswer = 0\n\n')
 
     attr_range = []
     for column in data.columns.drop('ClassID'):
@@ -55,7 +84,7 @@ def create_classifier(fp, data, class_ids, stump_count, number=""):
         print(values)
         for index in range(len(values)):
             if values[index] <= threshold:
-                print(values[index], threshold)
+                # print(values[index], threshold)
                 if int(class_ids[index]) == -1:
                     hit = hit + 1
                 else:
@@ -70,18 +99,18 @@ def create_classifier(fp, data, class_ids, stump_count, number=""):
             sign = '<='
         else:
             sign = '>'
-        fp.write('\t# Decision Stump Number %s\n' % (stump + 1))
-        fp.write('\tif record[\'%s\'] %s %s:\n' % (attr_index, sign, threshold))
-        fp.write('\t\tanswer = answer - 1\n')
-        fp.write('\telse:\n')
-        fp.write('\t\tanswer = answer + 1\n\n')
+        fp.write('\t\t# Decision Stump Number %s\n' % (stump + 1))
+        fp.write('\t\tif record[\'%s\'] %s %s:\n' % (attr_index, sign, threshold))
+        fp.write('\t\t\tanswer = answer - 1\n')
+        fp.write('\t\telse:\n')
+        fp.write('\t\t\tanswer = answer + 1\n\n')
 
     # TODO: is it < or <= ... the doc shows both
     # Return result
-    fp.write('\tif answer < 0:\n')
-    fp.write('\t\treturn -1\n')
-    fp.write('\telse:\n')
-    fp.write('\t\treturn 1\n\n\n')
+    fp.write('\t\tif answer < 0:\n')
+    fp.write('\t\t\treturn -1\n')
+    fp.write('\t\telse:\n')
+    fp.write('\t\t\treturn 1\n\n\n')
 
 
 def call_classifier(fp):
@@ -117,9 +146,10 @@ def cross_validation(n_stumps, data, n_folds=10):
         file.close()
 
     for count in n_stumps:
-        file_name = 'HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count)
+        class_name = 'Classifier%s' % count
         # call the function to classify to determine the fold
-
+        classify = getattr(classifiers[count], 'classifier')
+        print(classify([0, 0, 0, 0, 0, 0, 0, 0]))
     return 0
 
 
@@ -128,8 +158,10 @@ if __name__ == '__main__':
     # files should do nothing for now
     for count in n_stumps:
         file = open('HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count), 'w')
-        file.write('def classifier(record):\n')
-        file.write('\traise Exception(\'Sorry, no numbers below zero\')\n\n')
+        file.write('class Classifier%s:\n' % count)
+        file.write('\tdef classifier(record):\n')
+        file.write('\t\traise Exception(\'Sorry, no numbers below zero\')\n\n')
+        file.close()
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
     # TODO: quantize

@@ -1,22 +1,23 @@
-def classifier(record):
-	answer = 0
+class Classifier2:
+	def classifier(record):
+		answer = 0
 
-	# Decision Stump Number 1
-	if record['EarLobes'] <= 0:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 1
+		if record['EarLobes'] > 1:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	# Decision Stump Number 2
-	if record['HairLn'] <= 4:
-		answer = answer - 1
-	else:
-		answer = answer + 1
+		# Decision Stump Number 2
+		if record['Age'] > 51:
+			answer = answer - 1
+		else:
+			answer = answer + 1
 
-	if answer < 0:
-		return -1
-	else:
-		return 1
+		if answer < 0:
+			return -1
+		else:
+			return 1
 
 
 if __name__ == '__main__':
