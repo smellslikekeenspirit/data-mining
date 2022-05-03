@@ -11,7 +11,7 @@ The cost function to determine the minimum weighted entropy
 possible for an attribute
 """
 
-AGE_BIN = 2
+STANDARD_BIN = 2
 HEIGHT_BIN = 4
 
 
@@ -95,7 +95,7 @@ Writes out each decision as the decision is made
 """
 
 
-def build_classification(fp, data, classification, level):
+def build_classification(file_pointer, data, classification, level):
     best_rule_thresh = sys.float_info.max
     best_weighted_entropy = sys.float_info.max
     attr_index = -1
@@ -115,7 +115,7 @@ def build_classification(fp, data, classification, level):
         # prevent diving my zero, data set have an even balance of classes
         if purity != 0:
             majority_class = purity / abs(purity)
-        fp.write('%s\tclass_id = %d\n' % (tabs, majority_class))
+        file_pointer.write('%s\tclass_id = %d\n' % (tabs, majority_class))
         return
     for attribute in data.columns:
         bin = 2
@@ -148,12 +148,12 @@ def build_classification(fp, data, classification, level):
     left_partition = pandas.DataFrame(left_partition)
     right_partition = pandas.DataFrame(right_partition)
     # left split of the data
-    fp.write('%sif record[\'%s\'] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
-    build_classification(fp, left_partition, left_class, level + 1)
+    file_pointer.write('%sif record[\'%s\'] <= %d:\n' % (tabs, attr_index, best_rule_thresh))
+    build_classification(file_pointer, left_partition, left_class, level + 1)
 
     # right split of the data
-    fp.write('%selse:\n' % tabs)
-    build_classification(fp, right_partition, right_class, level + 1)
+    file_pointer.write('%selse:\n' % tabs)
+    build_classification(file_pointer, right_partition, right_class, level + 1)
     return
 
 
@@ -162,14 +162,14 @@ The libraries and global variable needed in the trained program
 """
 
 
-def file_header(fp):
-    fp.write('import math\n')
-    fp.write('import os\n')
-    fp.write('import pandas\n')
-    fp.write('import sys\n\n')
+def file_header(file_pointer):
+    file_pointer.write('import math\n')
+    file_pointer.write('import os\n')
+    file_pointer.write('import pandas\n')
+    file_pointer.write('import sys\n\n')
 
-    fp.write('AGE_BIN = 2\n')
-    fp.write('HEIGHT_BIN = 4\n')
+    file_pointer.write('STANDARD_BIN = 2\n')
+    file_pointer.write('HEIGHT_BIN = 4\n')
 
 
 """
@@ -177,30 +177,30 @@ Reads in the unlabeled data and stores the columns in an array
 """
 
 
-def read_input(fp):
-    fp.write('def read_data_file(data_file_name):\n')
-    fp.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
-    fp.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
-    fp.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
-    fp.write('\tclassification = []\n')
-    fp.write('\t# quantize the data\n')
-    fp.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'TailLn\'] = data[\'TailLn\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'HairLn\'] = data[\'HairLn\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'BangLn\'] = data[\'BangLn\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'EarLobes\'] = data[\'EarLobes\'].apply(\n')
-    fp.write('\t\tlambda x: math.ceil(x / AGE_BIN) * AGE_BIN)\n')
-    fp.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
-    fp.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n')
-    fp.write('\tfor index, row in data.iterrows():\n')
-    fp.write('\t\tclassification.append(row[\'ClassID\'])\n')
-    fp.write('\treturn clean_data.astype(int), classification\n\n\n')
+def read_input(file_pointer):
+    file_pointer.write('def read_data_file(data_file_name):\n')
+    file_pointer.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
+    file_pointer.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
+    file_pointer.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
+    file_pointer.write('\tclassification = []\n')
+    file_pointer.write('\t# quantize the data\n')
+    file_pointer.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'TailLn\'] = data[\'TailLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'HairLn\'] = data[\'HairLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'BangLn\'] = data[\'BangLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'EarLobes\'] = data[\'EarLobes\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n')
+    file_pointer.write('\tfor index, row in data.iterrows():\n')
+    file_pointer.write('\t\tclassification.append(row[\'ClassID\'])\n')
+    file_pointer.write('\treturn clean_data.astype(int), classification\n\n\n')
 
 
 """
@@ -208,25 +208,25 @@ The one rule classification for unlabeled data
 """
 
 
-def classify_data(fp, data, classification):
-    fp.write('def classify(filename):\n')
-    fp.write('\tdata, labels = read_data_file(\'Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv\')\n')
-    fp.write('\t# classifies the unlabled data\n')
-    fp.write('\tclassification = []\n')
-    fp.write('\tclass_id = 0\n')
-    fp.write('\tfor index, record in data.iterrows():\n')
-    build_classification(fp, data, classification, 0)
-    fp.write('\t\tclassification.append(class_id)\n')
-    fp.write('\t\t# Print out here for the grader\n')
-    fp.write('\t\tprint(class_id)\n\n')
-    fp.write('\t# writes out the classifications to a csv\n')
-    fp.write('\tfp = open(\'HW05_jxp8764_pdn3628_MyClassifications.csv\', \'w\')\n')
-    fp.write('\tfor class_type in classification:\n')
-    fp.write('\t\tfp.write(\'%s\\n\' % class_type)\n')
-    fp.write('\tfp.close()\n\n\n')
+def classify_data(file_pointer, data, classification):
+    file_pointer.write('def classify(filename):\n')
+    file_pointer.write('\tdata, labels = read_data_file(\'Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv\')\n')
+    file_pointer.write('\t# classifies the unlabled data\n')
+    file_pointer.write('\tclassification = []\n')
+    file_pointer.write('\tclass_id = 0\n')
+    file_pointer.write('\tfor index, record in data.iterrows():\n')
+    build_classification(file_pointer, data, classification, 0)
+    file_pointer.write('\t\tclassification.append(class_id)\n')
+    file_pointer.write('\t\t# Print out here for the grader\n')
+    file_pointer.write('\t\tprint(class_id)\n\n')
+    file_pointer.write('\t# writes out the classifications to a csv\n')
+    file_pointer.write('\tfile_pointer = open(\'HW05_jxp8764_pdn3628_MyClassifications.csv\', \'w\')\n')
+    file_pointer.write('\tfor class_type in classification:\n')
+    file_pointer.write('\t\tfile_pointer.write(\'%s\\n\' % class_type)\n')
+    file_pointer.write('\tfile_pointer.close()\n\n\n')
 
-    fp.write('if __name__ == \'__main__\':\n')
-    fp.write('\tclassify(sys.argv[1])\n')
+    file_pointer.write('if __name__ == \'__main__\':\n')
+    file_pointer.write('\tclassify(sys.argv[1])\n')
 
 
 """
@@ -235,13 +235,13 @@ Opens up the file to write out the classification. Then starts writting to it
 
 
 def write_decision_tree(data, classification):
-    fp = open('HW05_jxp8764_pdn3628_Trained_Classifier.py', 'w')
+    file_pointer = open('HW05_jxp8764_pdn3628_Trained_Classifier.py', 'w')
 
-    file_header(fp)
-    read_input(fp)
-    classify_data(fp, data, classification)
+    file_header(file_pointer)
+    read_input(file_pointer)
+    classify_data(file_pointer, data, classification)
 
-    fp.close()
+    file_pointer.close()
 
 
 def read_data_file(data_file_name):
@@ -251,17 +251,17 @@ def read_data_file(data_file_name):
     classification = []
     # quantize the data
     clean_data['Age'] = data['Age'].apply(
-        lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['TailLn'] = data['TailLn'].apply(
-        lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['HairLn'] = data['HairLn'].apply(
-        lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['BangLn'] = data['BangLn'].apply(
-        lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['Reach'] = data['Reach'].apply(
-        lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['EarLobes'] = data['EarLobes'].apply(
-        lambda x: math.ceil(x / AGE_BIN) * AGE_BIN)
+        lambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['Ht'] = data['Ht'].apply(
         lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
     for index, row in data.iterrows():
@@ -274,25 +274,25 @@ def read_data_file(data_file_name):
 Reads in the training data and quantizes the data
 """
 if __name__ == '__main__':
-    df, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
-    write_decision_tree(df, classification)
+    data_frame, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
+    write_decision_tree(data_frame, classification)
     HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
     with open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'r') as f:
         # assuming target class is Assam
         records = []
-        for c in classification:
+        for class_id in classification:
             classifier_decision = int(f.readline().strip())
             outcome = ""
-            if c == -1 and classifier_decision == -1:
+            if class_id == -1 and classifier_decision == -1:
                 outcome = "TP"
-            elif c == -1 and classifier_decision == 1:
+            elif class_id == -1 and classifier_decision == 1:
                 outcome = "FN"
-            elif c == 1 and classifier_decision == 1:
+            elif class_id == 1 and classifier_decision == 1:
                 outcome = "TN"
-            elif c == 1 and classifier_decision == -1:
+            elif class_id == 1 and classifier_decision == -1:
                 outcome = "FP"
-            records.append([c, classifier_decision, outcome])
-        df = pandas.DataFrame(records, columns=['Actual Class', 'Classified Class', 'Outcome'])
+            records.append([class_id, classifier_decision, outcome])
+        data_frame = pandas.DataFrame(records, columns=['Actual Class', 'Classified Class', 'Outcome'])
         frequency_table = df['Outcome'].value_counts()
         print(frequency_table)
         print("Accurate guesses (TP+TN): ", frequency_table.TP+frequency_table.TN)
