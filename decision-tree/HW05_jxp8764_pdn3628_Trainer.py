@@ -111,8 +111,8 @@ def build_classification(fp, data, classification, level):
     tabs = "\t" * (level + 2)
 
     if level > 10 or abs(purity) > .95 or len(data) < 9:
-        # TODO: check that 1 should be the default class
         majority_class = 1
+        # prevent diving my zero, data set have an even balance of classes
         if purity != 0:
             majority_class = purity / abs(purity)
         fp.write('%s\tclass_id = %d\n' % (tabs, majority_class))
@@ -121,8 +121,8 @@ def build_classification(fp, data, classification, level):
         bin = 2
         if attribute == 'Ht':
             bin = 4
-        # select attribute with the smallest weighted entropy
 
+        # select attribute with the smallest weighted entropy
         [thresh, entropy] = best_min_entropy_threshold(data, classification, bin, attribute)
         if entropy < best_weighted_entropy:
             best_rule_thresh = thresh
@@ -156,6 +156,12 @@ def build_classification(fp, data, classification, level):
     build_classification(fp, right_partition, right_class, level + 1)
     return
 
+
+"""
+The libraries and global variable needed in the trained program
+"""
+
+
 def file_header(fp):
     fp.write('import math\n')
     fp.write('import os\n')
@@ -164,6 +170,7 @@ def file_header(fp):
 
     fp.write('AGE_BIN = 2\n')
     fp.write('HEIGHT_BIN = 4\n')
+
 
 """
 Reads in the unlabeled data and stores the columns in an array
@@ -174,8 +181,9 @@ def read_input(fp):
     fp.write('def read_data_file(data_file_name):\n')
     fp.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
     fp.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
-    fp.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\']].round(decimals=0)\n')
+    fp.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
     fp.write('\tclassification = []\n')
+    fp.write('\t# quantize the data\n')
     fp.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
     fp.write('\t\tlambda x: math.floor(x / AGE_BIN) * AGE_BIN)\n')
     fp.write('\tclean_data[\'TailLn\'] = data[\'TailLn\'].apply(\n')
@@ -241,6 +249,7 @@ def read_data_file(data_file_name):
     data = pandas.read_csv(data_file_path, delimiter=',')
     clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age']].round(decimals=0)
     classification = []
+    # quantize the data
     clean_data['Age'] = data['Age'].apply(
         lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
     clean_data['TailLn'] = data['TailLn'].apply(

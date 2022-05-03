@@ -8,7 +8,7 @@ HEIGHT_BIN = 4
 def read_data_file(data_file_name):
 	data_file_path = os.path.join(os.getcwd(), data_file_name)
 	data = pandas.read_csv(data_file_path, delimiter=',')
-	clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach']].round(decimals=0)
+	clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age']].round(decimals=0)
 	classification = []
 	clean_data['Age'] = data['Age'].apply(
 		lambda x: math.floor(x / AGE_BIN) * AGE_BIN)
