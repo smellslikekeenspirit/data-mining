@@ -5,6 +5,8 @@ import sys
 
 STANDARD_BIN = 2
 HEIGHT_BIN = 4
+
+
 def read_data_file(data_file_name):
 	data_file_path = os.path.join(os.getcwd(), data_file_name)
 	data = pandas.read_csv(data_file_path, delimiter=',')

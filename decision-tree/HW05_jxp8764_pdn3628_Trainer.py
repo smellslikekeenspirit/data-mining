@@ -169,7 +169,7 @@ def file_header(file_pointer):
     file_pointer.write('import sys\n\n')
 
     file_pointer.write('STANDARD_BIN = 2\n')
-    file_pointer.write('HEIGHT_BIN = 4\n')
+    file_pointer.write('HEIGHT_BIN = 4\n\n\n')
 
 
 """
