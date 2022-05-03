@@ -1,26 +1,50 @@
 import random
 import numpy as np
 import pandas as pd
+import os
+import math
+
+STANDARD_BIN = 2
+HEIGHT_BIN = 4
+
+"""
+The libraries and global variable needed in the trained program
+"""
 
 
-def read_input(fp):
+def file_header(file_pointer):
+    file_pointer.write('import math\n')
+    file_pointer.write('import os\n')
+    file_pointer.write('import pandas\n')
+    file_pointer.write('import sys\n\n')
+
+    file_pointer.write('STANDARD_BIN = 2\n')
+    file_pointer.write('HEIGHT_BIN = 4\n\n\n')
+
+
+def read_input(file_pointer):
     # TODO: What should the data be rounded to?
-    fp.write('if __name__ == \'__main__\':\n')
-    fp.write('\tdata = []\n\n')
-    fp.write('\t# reads in the unlabeled data from the csv\n')
-    fp.write('\twith open(\'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv\', \'r\') as file:\n')
-    fp.write('\t\tfile.readline()\n')
-    fp.write('\t\tfor line in file:\n')
-    fp.write('\t\t\trow = line.strip().split(",")\n')
-    fp.write('\t\t\tfor index in range(len(row)):\n')
-    fp.write('\t\t\t\tval = float(row[index])\n')
-    fp.write('\t\t\t\tif index == 1:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 4.0) * 4)\n')
-    fp.write('\t\t\t\telif index == 6:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 2.0, 1) * 4)\n')
-    fp.write('\t\t\t\telse:\n')
-    fp.write('\t\t\t\t\tval = int(round(val / 2.0) * 2)\n')
-    fp.write('\t\t\t\tdata.append(val)\n\n')
+    file_pointer.write('if __name__ == \'__main__\':\n')
+    file_pointer.write('\tdata_file_name = \'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv\'\n')
+    file_pointer.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
+    file_pointer.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
+    file_pointer.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
+    file_pointer.write('\tclassification = []\n')
+    file_pointer.write('\t# quantize the data\n')
+    file_pointer.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'TailLn\'] = data[\'TailLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'HairLn\'] = data[\'HairLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'BangLn\'] = data[\'BangLn\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'Reach\'] = data[\'Reach\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'EarLobes\'] = data[\'EarLobes\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)\n')
+    file_pointer.write('\tclean_data[\'Ht\'] = data[\'Ht\'].apply(\n')
+    file_pointer.write('\t\tlambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)\n\n')
 
 
 def write_classifier(fp, decision_stumps):
@@ -46,7 +70,7 @@ def write_classifier(fp, decision_stumps):
 
 
 def call_classifier(fp, count):
-    fp.write('\tfor record in data:\n')
+    fp.write('\tfor index, record in clean_data.iterrows():\n')
     fp.write('\t\tprint(classifier(record))\n')
     # TODO: what to do with the classifications
 
@@ -115,7 +139,7 @@ def classify_data(decisions, record):
         return 1
 
 
-def cross_validation(n_stumps, data, n_folds=10):
+def cross_validation(n_stumps, data, class_ids, n_folds=10):
     number_of_records_per_fold = int(len(data) / n_folds)
     folds = {}
     data_assam = data[data['ClassID'] == -1]
@@ -141,12 +165,40 @@ def cross_validation(n_stumps, data, n_folds=10):
 
     file = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
+    file_header(file)
     write_classifier(file, decision_stumps[1])
     read_input(file)
     call_classifier(file, count)
 
     file.close()
     return 0
+
+
+def read_data_file(data_file_name):
+    data_file_path = os.path.join(os.getcwd(), data_file_name)
+    data = pd.read_csv(data_file_path, delimiter=',')\
+        .drop(columns=['ClassName']).astype(int)
+    clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age', 'ClassID']].round(decimals=0)
+    classification = []
+    # quantize the data
+    clean_data['Age'] = data['Age'].apply(
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['TailLn'] = data['TailLn'].apply(
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['HairLn'] = data['HairLn'].apply(
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['BangLn'] = data['BangLn'].apply(
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['Reach'] = data['Reach'].apply(
+        lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['EarLobes'] = data['EarLobes'].apply(
+        lambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)
+    clean_data['Ht'] = data['Ht'].apply(
+        lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
+    for index, row in data.iterrows():
+        classification.append(row['ClassID'])
+    # Cast everything to integer.
+    return clean_data.astype(int), classification
 
 
 if __name__ == '__main__':
@@ -158,10 +210,7 @@ if __name__ == '__main__':
     file.close()
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
-    # TODO: quantize
-    labeled_data = pd.read_csv("Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv")\
-        .drop(columns=['ClassName']).astype(int)
-    class_ids = labeled_data['ClassID']
-    best_number_of_stumps = cross_validation(n_stumps, labeled_data)
+    labeled_data, class_ids = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
+    best_number_of_stumps = cross_validation(n_stumps, labeled_data, class_ids)
 
     fp.close()

@@ -1,8 +1,17 @@
+import math
+import os
+import pandas
+import sys
+
+STANDARD_BIN = 2
+HEIGHT_BIN = 4
+
+
 def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record['TailLn'] <= 24:
+	if record['Ht'] > 191:
 		answer = answer - 1
 	else:
 		answer = answer + 1
@@ -14,22 +23,26 @@ def classifier(record):
 
 
 if __name__ == '__main__':
-	data = []
+	data_file_name = 'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv'
+	data_file_path = os.path.join(os.getcwd(), data_file_name)
+	data = pandas.read_csv(data_file_path, delimiter=',')
+	clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age']].round(decimals=0)
+	classification = []
+	# quantize the data
+	clean_data['Age'] = data['Age'].apply(
+		lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['TailLn'] = data['TailLn'].apply(
+		lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['HairLn'] = data['HairLn'].apply(
+		lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['BangLn'] = data['BangLn'].apply(
+		lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['Reach'] = data['Reach'].apply(
+		lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['EarLobes'] = data['EarLobes'].apply(
+		lambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)
+	clean_data['Ht'] = data['Ht'].apply(
+		lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
 
-	# reads in the unlabeled data from the csv
-	with open('Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv', 'r') as file:
-		file.readline()
-		for line in file:
-			row = line.strip().split(",")
-			for index in range(len(row)):
-				val = float(row[index])
-				if index == 1:
-					val = int(round(val / 4.0) * 4)
-				elif index == 6:
-					val = int(round(val / 2.0, 1) * 4)
-				else:
-					val = int(round(val / 2.0) * 2)
-				data.append(val)
-
-	for record in data:
-		print(Classifier400.classifier(record))
+	for index, record in clean_data.iterrows():
+		print(classifier(record))
