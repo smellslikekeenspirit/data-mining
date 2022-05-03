@@ -209,7 +209,7 @@ The one rule classification for unlabeled data
 
 
 def classify_data(file_pointer, data, classification):
-    file_pointer.write('def classify(filename):\n')
+    file_pointer.write('def classify():\n')
     file_pointer.write('\tdata, labels = read_data_file(\'Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv\')\n')
     file_pointer.write('\t# classifies the unlabled data\n')
     file_pointer.write('\tclassification = []\n')
@@ -226,7 +226,7 @@ def classify_data(file_pointer, data, classification):
     file_pointer.write('\tfile_pointer.close()\n\n\n')
 
     file_pointer.write('if __name__ == \'__main__\':\n')
-    file_pointer.write('\tclassify(sys.argv[1])\n')
+    file_pointer.write('\tclassify()\n')
 
 
 """
@@ -276,7 +276,7 @@ Reads in the training data and quantizes the data
 if __name__ == '__main__':
     data_frame, classification = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
     write_decision_tree(data_frame, classification)
-    HW05_jxp8764_pdn3628_Trained_Classifier.classify('Abominable_Data_HW_LABELED_TRAINING_DATA__v750_2215.csv')
+    HW05_jxp8764_pdn3628_Trained_Classifier.classify()
     with open('HW05_jxp8764_pdn3628_MyClassifications.csv', 'r') as f:
         # assuming target class is Assam
         records = []
@@ -293,7 +293,7 @@ if __name__ == '__main__':
                 outcome = "FP"
             records.append([class_id, classifier_decision, outcome])
         data_frame = pandas.DataFrame(records, columns=['Actual Class', 'Classified Class', 'Outcome'])
-        frequency_table = df['Outcome'].value_counts()
+        frequency_table = data_frame['Outcome'].value_counts()
         print(frequency_table)
         print("Accurate guesses (TP+TN): ", frequency_table.TP+frequency_table.TN)
         print("Mistakes (FP+FN): ", frequency_table.FP+frequency_table.FN)
