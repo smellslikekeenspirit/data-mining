@@ -2,25 +2,25 @@ def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record['EarLobes'] <= 0:
+	if record['Ht'] > 224:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record['Reach'] > 211:
+	if record['HairLn'] <= 6:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 3
-	if record['TailLn'] > 14:
+	if record['BangLn'] <= 7:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 4
-	if record['Reach'] > 224:
+	if record['Age'] > 15:
 		answer = answer - 1
 	else:
 		answer = answer + 1

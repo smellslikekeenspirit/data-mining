@@ -2,121 +2,121 @@ def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record['BangLn'] <= 8:
+	if record['BangLn'] <= 3:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record['BangLn'] <= 5:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 3
-	if record['Age'] > 77:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 4
-	if record['Reach'] <= 120:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 5
-	if record['Age'] > 81:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 6
 	if record['HairLn'] <= 8:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 7
-	if record['HairLn'] <= 6:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 8
+	# Decision Stump Number 3
 	if record['EarLobes'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 9
-	if record['Ht'] > 160:
+	# Decision Stump Number 4
+	if record['BangLn'] > 9:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 10
-	if record['Ht'] > 165:
+	# Decision Stump Number 5
+	if record['HairLn'] <= 13:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 11
-	if record['BangLn'] <= 2:
-		answer = answer - 1
-	else:
-		answer = answer + 1
-
-	# Decision Stump Number 12
+	# Decision Stump Number 6
 	if record['EarLobes'] <= 0:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 13
-	if record['TailLn'] <= 25:
+	# Decision Stump Number 7
+	if record['Age'] > 48:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 14
-	if record['HairLn'] <= 16:
+	# Decision Stump Number 8
+	if record['Reach'] > 207:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
-	# Decision Stump Number 15
+	# Decision Stump Number 9
+	if record['Reach'] > 219:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
+	# Decision Stump Number 10
+	if record['Reach'] <= 120:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
+	# Decision Stump Number 11
 	if record['EarLobes'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
+	# Decision Stump Number 12
+	if record['TailLn'] > 13:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
+	# Decision Stump Number 13
+	if record['Ht'] > 227:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
+	# Decision Stump Number 14
+	if record['EarLobes'] > 1:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
+	# Decision Stump Number 15
+	if record['EarLobes'] <= 0:
+		answer = answer - 1
+	else:
+		answer = answer + 1
+
 	# Decision Stump Number 16
-	if record['BangLn'] <= 5:
+	if record['HairLn'] <= 4:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 17
-	if record['HairLn'] <= 7:
+	if record['EarLobes'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 18
-	if record['Ht'] <= 96:
+	if record['HairLn'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 19
-	if record['Age'] > 27:
+	if record['Ht'] <= 116:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 20
-	if record['Age'] > 79:
+	if record['EarLobes'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1

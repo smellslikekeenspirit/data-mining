@@ -8,7 +8,7 @@ def classifier(record):
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record['HairLn'] <= 11:
+	if record['HairLn'] <= 4:
 		answer = answer - 1
 	else:
 		answer = answer + 1

@@ -2,7 +2,7 @@ def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record['EarLobes'] <= 0:
+	if record['EarLobes'] > 1:
 		answer = answer - 1
 	else:
 		answer = answer + 1

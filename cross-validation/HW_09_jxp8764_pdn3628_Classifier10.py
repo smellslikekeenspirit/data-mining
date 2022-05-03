@@ -2,61 +2,61 @@ def classifier(record):
 	answer = 0
 
 	# Decision Stump Number 1
-	if record['Ht'] > 230:
+	if record['Age'] > 49:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 2
-	if record['TailLn'] > -5:
+	if record['EarLobes'] <= 0:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 3
-	if record['Age'] > 31:
+	if record['HairLn'] <= 12:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 4
-	if record['TailLn'] <= 26:
+	if record['Ht'] > 234:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 5
-	if record['TailLn'] > 4:
+	if record['EarLobes'] <= 0:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 6
-	if record['BangLn'] <= 4:
+	if record['TailLn'] > 18:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 7
-	if record['Age'] > 29:
+	if record['BangLn'] <= 6:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 8
-	if record['Reach'] <= 121:
+	if record['Reach'] <= 149:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 9
-	if record['Reach'] > 196:
+	if record['TailLn'] <= 24:
 		answer = answer - 1
 	else:
 		answer = answer + 1
 
 	# Decision Stump Number 10
-	if record['Reach'] > 225:
+	if record['Ht'] > 178:
 		answer = answer - 1
 	else:
 		answer = answer + 1

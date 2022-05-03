@@ -1,12 +1,12 @@
 import random
 import numpy as np
 import pandas as pd
-from . import HW_09_jxp8764_pdn3628_Classifier1, HW_09_jxp8764_pdn3628_Classifier2, HW_09_jxp8764_pdn3628_Classifier4
-from . import HW_09_jxp8764_pdn3628_Classifier8, HW_09_jxp8764_pdn3628_Classifier10, HW_09_jxp8764_pdn3628_Classifier20
-from . import HW_09_jxp8764_pdn3628_Classifier25, HW_09_jxp8764_pdn3628_Classifier35, HW_09_jxp8764_pdn3628_Classifier50
-from . import HW_09_jxp8764_pdn3628_Classifier75, HW_09_jxp8764_pdn3628_Classifier100, HW_09_jxp8764_pdn3628_Classifier150
-from . import HW_09_jxp8764_pdn3628_Classifier200, HW_09_jxp8764_pdn3628_Classifier250, HW_09_jxp8764_pdn3628_Classifier300
-from . import HW_09_jxp8764_pdn3628_Classifier400
+import HW_09_jxp8764_pdn3628_Classifier1, HW_09_jxp8764_pdn3628_Classifier2, HW_09_jxp8764_pdn3628_Classifier4
+import HW_09_jxp8764_pdn3628_Classifier8, HW_09_jxp8764_pdn3628_Classifier10, HW_09_jxp8764_pdn3628_Classifier20
+import HW_09_jxp8764_pdn3628_Classifier25, HW_09_jxp8764_pdn3628_Classifier35, HW_09_jxp8764_pdn3628_Classifier50
+import HW_09_jxp8764_pdn3628_Classifier75, HW_09_jxp8764_pdn3628_Classifier100, HW_09_jxp8764_pdn3628_Classifier150
+import HW_09_jxp8764_pdn3628_Classifier200, HW_09_jxp8764_pdn3628_Classifier250, HW_09_jxp8764_pdn3628_Classifier300
+import HW_09_jxp8764_pdn3628_Classifier400
 
 
 def read_input(fp):
@@ -124,12 +124,12 @@ def cross_validation(n_stumps, data, n_folds=10):
 
 
 if __name__ == '__main__':
+    n_stumps = [1, 2, 4, 8, 10, 20, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400]
     # files should do nothing for now
     for count in n_stumps:
         file = open('HW_09_jxp8764_pdn3628_Classifier{0}.py'.format(count), 'w')
         file.write('def classifier(record):\n')
         file.write('\traise Exception(\'Sorry, no numbers below zero\')\n\n')
-    n_stumps = [1, 2, 4, 8, 10, 20, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400]
     # Note: can run this in a for loop to get data for all n_stumps
     fp = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
     # TODO: quantize
