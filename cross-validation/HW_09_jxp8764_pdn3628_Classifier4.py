@@ -3,25 +3,25 @@ class Classifier4:
 		answer = 0
 
 		# Decision Stump Number 1
-		if record['EarLobes'] > 1:
+		if record['BangLn'] > 9:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 2
-		if record['EarLobes'] > 1:
+		if record['HairLn'] <= 9:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 3
-		if record['Reach'] > 178:
+		if record['EarLobes'] > 1:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 4
-		if record['Age'] > 19:
+		if record['TailLn'] > -3:
 			answer = answer - 1
 		else:
 			answer = answer + 1
@@ -51,4 +51,4 @@ if __name__ == '__main__':
 				data.append(val)
 
 	for record in data:
-		print(classifier(record))
+		print(Classifier4.classifier(record))

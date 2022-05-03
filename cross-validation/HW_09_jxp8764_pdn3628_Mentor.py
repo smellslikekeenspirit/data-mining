@@ -113,9 +113,9 @@ def create_classifier(fp, data, class_ids, stump_count, number=""):
     fp.write('\t\t\treturn 1\n\n\n')
 
 
-def call_classifier(fp):
+def call_classifier(fp, count):
     fp.write('\tfor record in data:\n')
-    fp.write('\t\tprint(classifier(record))\n')
+    fp.write('\t\tprint(Classifier%s.classifier(record))\n' % count)
     # TODO: what to do with the classifications
 
 
@@ -141,7 +141,7 @@ def cross_validation(n_stumps, data, n_folds=10):
 
         create_classifier(file, data, class_ids, count)
         read_input(file)
-        call_classifier(file)
+        call_classifier(file, count)
 
         file.close()
 

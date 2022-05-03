@@ -3,13 +3,13 @@ class Classifier2:
 		answer = 0
 
 		# Decision Stump Number 1
-		if record['EarLobes'] > 1:
+		if record['Age'] > 44:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 2
-		if record['Age'] > 51:
+		if record['BangLn'] <= 4:
 			answer = answer - 1
 		else:
 			answer = answer + 1
@@ -39,4 +39,4 @@ if __name__ == '__main__':
 				data.append(val)
 
 	for record in data:
-		print(classifier(record))
+		print(Classifier2.classifier(record))

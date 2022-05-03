@@ -3,7 +3,7 @@ class Classifier1:
 		answer = 0
 
 		# Decision Stump Number 1
-		if record['EarLobes'] <= 0:
+		if record['Reach'] > 162:
 			answer = answer - 1
 		else:
 			answer = answer + 1
@@ -33,4 +33,4 @@ if __name__ == '__main__':
 				data.append(val)
 
 	for record in data:
-		print(classifier(record))
+		print(Classifier1.classifier(record))

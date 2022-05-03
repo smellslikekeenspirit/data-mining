@@ -3,49 +3,49 @@ class Classifier8:
 		answer = 0
 
 		# Decision Stump Number 1
-		if record['BangLn'] <= 3:
+		if record['Reach'] <= 120:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 2
-		if record['BangLn'] <= 3:
+		if record['Age'] > 81:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 3
-		if record['BangLn'] <= 4:
+		if record['Ht'] > 175:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 4
-		if record['Age'] > 17:
+		if record['Age'] > 37:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 5
-		if record['TailLn'] <= 28:
+		if record['HairLn'] <= 2:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 6
-		if record['TailLn'] > -7:
+		if record['Age'] > 25:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 7
-		if record['HairLn'] <= 10:
+		if record['BangLn'] <= 6:
 			answer = answer - 1
 		else:
 			answer = answer + 1
 
 		# Decision Stump Number 8
-		if record['Ht'] <= 128:
+		if record['HairLn'] <= 3:
 			answer = answer - 1
 		else:
 			answer = answer + 1
@@ -75,4 +75,4 @@ if __name__ == '__main__':
 				data.append(val)
 
 	for record in data:
-		print(classifier(record))
+		print(Classifier8.classifier(record))
