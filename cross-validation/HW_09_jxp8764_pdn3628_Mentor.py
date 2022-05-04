@@ -217,7 +217,7 @@ def cross_validation(n_stumps, data, n_folds=10):
             # for all folds in the folds dictionary
             for fold_number in folds.keys():
                 # as long as this fold is not the nth fold (which will be set aside as testing data)
-                if fold_number != n:
+                if fold_number != test_fold:
                     # add fold to training data
                     training_data.append(folds[fold_number])
             # merge the list of folds into a single dataframe of training data for convenience
@@ -233,7 +233,7 @@ def cross_validation(n_stumps, data, n_folds=10):
                     # increment mistakes for classifier with the current stump number
                     mistakes[count] += 1
     print(mistakes)
-    least_mistakes = mistakes[1]
+    least_mistakes = 1
     for stump in n_stumps:
         if mistakes[stump] < mistakes[least_mistakes]:
             least_mistakes = stump
@@ -281,7 +281,7 @@ if __name__ == '__main__':
     file_clear.write('\traise Exception(\'Sorry, file not done\')\n\n')
     file_clear.close()
 
-    labeled_data, class_ids = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
+    labeled_data = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
     best_number_of_stumps = cross_validation(n_stumps, labeled_data)
     print('Best Number of Stumps: %s\n' % best_number_of_stumps)
 
