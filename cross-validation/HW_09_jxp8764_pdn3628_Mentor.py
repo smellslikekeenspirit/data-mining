@@ -167,7 +167,7 @@ def classify_data(decisions, record):
         return 1
 
 
-def plot_mistakes(mistakes):
+def plot_mistakes(mistakes, best_stump):
     """
     plot a line graph of number of stumps vs amount of mistakes
     :param mistakes: dictionary containing {stump,mistakes} pairs
@@ -176,6 +176,7 @@ def plot_mistakes(mistakes):
     stumps = list(mistakes.keys())
     mistakes_per_stump = list(mistakes.values())
     plot.plot(stumps, mistakes_per_stump, marker='o')
+    plot.plot(best_stump, mistakes[best_stump], 'o')
     plot.xlabel("Number of decision stumps")
     plot.ylabel("Amount of mistakes as a fraction of training data")
     plot.savefig("mistakes.png")
@@ -247,15 +248,15 @@ def cross_validation(n_stumps, data, n_folds=10):
                     # increment mistakes for classifier with the current stump number
                     mistakes[count] += 1
 
-    for count in n_stumps:
-        mistakes[count] /= len(data)
-
-    plot_mistakes(mistakes)
-
     least_mistakes = 1
     for stump in n_stumps:
         if mistakes[stump] < mistakes[least_mistakes]:
             least_mistakes = stump
+
+    for count in n_stumps:
+        mistakes[count] /= len(data)
+
+    plot_mistakes(mistakes, least_mistakes)
     return least_mistakes
 
 
