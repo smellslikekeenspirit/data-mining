@@ -1,7 +1,5 @@
 import random
-import numpy as np
 import pandas
-import pandas as pd
 import os
 import math
 import matplotlib.pyplot as plot
@@ -36,8 +34,8 @@ def read_input(file_pointer):
     file_pointer.write('\tdata_file_name = \'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv\'\n')
     file_pointer.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
     file_pointer.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
-    file_pointer.write(
-        '\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
+    file_pointer.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', '
+                       '\'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
     file_pointer.write('\tclassification = []\n')
     file_pointer.write('\t# quantize the data\n')
     file_pointer.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
@@ -169,8 +167,12 @@ def classify_data(decisions, record):
 
 
 def plot_mistakes(mistakes):
-    plot.plot(mistakes.keys(), mistakes.values())
-    plot.show()
+    stumps = list(mistakes.keys())
+    mistakes_per_stump = list(mistakes.values())
+    plot.plot(stumps, mistakes_per_stump, marker='o')
+    plot.xlabel("Number of decision stumps")
+    plot.ylabel("Number of mistakes per test fold")
+    plot.savefig("mistakes.png")
 
 
 """
@@ -198,11 +200,11 @@ def cross_validation(n_stumps, data, n_folds=10):
         # with about 50% random assam data and 50% random bhutan data
         for record_index in range(number_of_records_per_fold):
             if toggle == 0:
-                r = random.randint(0, len(data_assam)-1)
+                r = random.randint(0, len(data_assam) - 1)
                 fold.append(data_assam.iloc[r])
                 toggle = 1
             else:
-                r = random.randint(0, len(data_bhutan)-1)
+                r = random.randint(0, len(data_bhutan) - 1)
                 fold.append(data_bhutan.iloc[r])
                 toggle = 0
         # convert the list of records back to a dataframe
@@ -241,7 +243,7 @@ def cross_validation(n_stumps, data, n_folds=10):
 
     for count in n_stumps:
         mistakes[count] /= len(data)
-    print(mistakes)
+
     plot_mistakes(mistakes)
 
     least_mistakes = 1
@@ -258,7 +260,7 @@ Reads in and quantizes the data
 
 def read_data_file(data_file_name):
     data_file_path = os.path.join(os.getcwd(), data_file_name)
-    data = pd.read_csv(data_file_path, delimiter=',') \
+    data = pandas.read_csv(data_file_path, delimiter=',') \
         .drop(columns=['ClassName']).astype(int)
     clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age', 'ClassID']].round(decimals=0)
     # quantize the data
@@ -295,7 +297,6 @@ if __name__ == '__main__':
     labeled_data = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
     best_number_of_stumps = cross_validation(n_stumps, labeled_data)
     print('Best Number of Stumps: %s\n' % best_number_of_stumps)
-
     decision_stumps = create_classifiers(labeled_data, labeled_data['ClassID'], best_number_of_stumps)
     file_classify = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
