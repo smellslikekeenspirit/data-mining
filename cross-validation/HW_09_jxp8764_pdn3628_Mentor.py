@@ -8,6 +8,11 @@ STANDARD_BIN = 2
 HEIGHT_BIN = 4
 
 
+"""
+The libraries and global variable needed in the trained program
+"""
+
+
 def file_header(file_pointer):
     file_pointer.write('import math\n')
     file_pointer.write('import os\n')
