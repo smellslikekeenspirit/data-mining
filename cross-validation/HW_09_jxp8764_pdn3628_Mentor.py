@@ -167,11 +167,16 @@ def classify_data(decisions, record):
 
 
 def plot_mistakes(mistakes):
+    """
+    plot a line graph of number of stumps vs amount of mistakes
+    :param mistakes: dictionary containing {stump,mistakes} pairs
+    :return: None
+    """
     stumps = list(mistakes.keys())
     mistakes_per_stump = list(mistakes.values())
     plot.plot(stumps, mistakes_per_stump, marker='o')
     plot.xlabel("Number of decision stumps")
-    plot.ylabel("Number of mistakes per test fold")
+    plot.ylabel("Amount of mistakes as a fraction of training data")
     plot.savefig("mistakes.png")
 
 
