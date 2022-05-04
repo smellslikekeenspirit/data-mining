@@ -70,9 +70,12 @@ def write_classifier(fp, decision_stumps):
 
 
 def call_classifier(fp, count):
+    fp.write('\tfile = open(\'HW_09_jxp8764_pdn3628_Classification.csv\', \'w\')\n')
     fp.write('\tfor index, record in clean_data.iterrows():\n')
-    fp.write('\t\tprint(classifier(record))\n')
-    # TODO: what to do with the classifications
+    fp.write('\t\tclass_id = classifier(record)\n')
+    fp.write('\t\tprint(class_id)\n')
+    fp.write('\t\tfile.write(\'%s\\n\' % class_id)\n')
+    fp.write('\tfile.close()\n')
 
 
 def create_classifiers(data, class_ids, n_stumps):
