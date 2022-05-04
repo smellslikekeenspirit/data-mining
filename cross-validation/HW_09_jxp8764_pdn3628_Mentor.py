@@ -302,7 +302,7 @@ if __name__ == '__main__':
 
     file_header(file_classify)
     write_classifier(file_classify, decision_stumps)
-    read_data_file(file_classify)
+    read_input(file_classify)
     call_classifier(file_classify)
 
     file_classify.close()
