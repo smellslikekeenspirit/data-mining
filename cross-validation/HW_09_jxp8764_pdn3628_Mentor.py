@@ -4,6 +4,7 @@ import pandas
 import pandas as pd
 import os
 import math
+import matplotlib.pyplot as plot
 
 STANDARD_BIN = 2
 HEIGHT_BIN = 4
@@ -167,6 +168,11 @@ def classify_data(decisions, record):
         return 1
 
 
+def plot_mistakes(mistakes):
+    plot.plot(mistakes.keys(), mistakes.values())
+    plot.show()
+
+
 """
 Determines which number of stumps to use based on n-fold cross validation
 """
@@ -232,7 +238,12 @@ def cross_validation(n_stumps, data, n_folds=10):
                 if record['ClassID'] != classifier_decision:
                     # increment mistakes for classifier with the current stump number
                     mistakes[count] += 1
+
+    for count in n_stumps:
+        mistakes[count] /= len(data)
     print(mistakes)
+    plot_mistakes(mistakes)
+
     least_mistakes = 1
     for stump in n_stumps:
         if mistakes[stump] < mistakes[least_mistakes]:
@@ -285,7 +296,7 @@ if __name__ == '__main__':
     best_number_of_stumps = cross_validation(n_stumps, labeled_data)
     print('Best Number of Stumps: %s\n' % best_number_of_stumps)
 
-    decision_stumps = create_classifiers(data, class_ids, best_number_of_stumps)
+    decision_stumps = create_classifiers(labeled_data, labeled_data['ClassID'], best_number_of_stumps)
     file_classify = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
     file_header(file_classify)
