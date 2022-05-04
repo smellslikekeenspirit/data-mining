@@ -101,46 +101,44 @@ Generates of the decisions for all of the stumps
 """
 
 
-def create_classifiers(data, class_ids, n_stumps):
+def create_classifiers(data, class_ids, stump_count):
     # The range of each of the attributes
     attr_range = []
     for column in data.columns.drop('ClassID'):
         column_values = data[column]
         attr_range.append([column_values.min(), column_values.max()])
 
-    # Decisions for all the different number of stumps
-    stump_decisions = {}
-    for stump_count in n_stumps:
-        decisions = []
-        for stump in range(stump_count):
-            attrs = data.columns.drop('ClassID')
-            idx = random.randint(0, (len(attrs) - 1))
-            attr_index = attrs[idx]
-            [min_val, max_val] = attr_range[idx]
-            threshold = random.randint(int(min_val), int(max_val))
-            # Determine majority case
-            hit = 0
-            miss = 0
-            values = data[attr_index]
-            for index in range(len(values)):
-                if values.iloc[index] <= threshold:
-                    if int(class_ids.iloc[index]) == -1:
-                        hit = hit + 1
-                    else:
-                        miss = miss + 1
+    # Decisions for n stumps
+    decisions = []
+    for stump in range(stump_count):
+        attrs = data.columns.drop('ClassID')
+        idx = random.randint(0, (len(attrs) - 1))
+        attr_index = attrs[idx]
+        [min_val, max_val] = attr_range[idx]
+        threshold = random.randint(int(min_val), int(max_val))
+        # Determine majority case
+        hit = 0
+        miss = 0
+        values = data[attr_index]
+        for index in range(len(values)):
+            if values.iloc[index] <= threshold:
+                if int(class_ids.iloc[index]) == -1:
+                    hit = hit + 1
                 else:
-                    if int(class_ids.iloc[index] == 1):
-                        hit = hit + 1
-                    else:
-                        miss = miss + 1
-
-            if hit > miss:
-                sign = '<='
+                    miss = miss + 1
             else:
-                sign = '>'
-            decisions.append([attr_index, sign, threshold])
-        stump_decisions[stump_count] = decisions
-    return stump_decisions
+                if int(class_ids.iloc[index] == 1):
+                    hit = hit + 1
+                else:
+                    miss = miss + 1
+
+        if hit > miss:
+            sign = '<='
+        else:
+            sign = '>'
+        decisions.append([attr_index, sign, threshold])
+
+    return decisions
 
 
 """
@@ -226,11 +224,11 @@ def cross_validation(n_stumps, data, class_ids, n_folds=10):
             # merge the list of folds into a single dataframe of training data for convenience
             training_data = pandas.concat(training_data, axis=0)
             # create classifier of the current stump number using training data
-            decision_stumps = create_classifiers(training_data, training_data['ClassID'], [count])
+            decision_stumps = create_classifiers(training_data, training_data['ClassID'], count)
             # for every record in the testing set which is kept in the nth position of the folds dictionary
             for index, record in folds[n].iterrows():
                 # let classifier with the current stump number decide its class
-                classifier_decision = classify_data(decision_stumps[count], record)
+                classifier_decision = classify_data(decision_stumps, record)
                 # if the decision does not match the record's actual label
                 if record['ClassID'] != classifier_decision:
                     # increment mistakes for classifier with the current stump number
