@@ -95,7 +95,7 @@ Generates of the decisions for all of the stumps
 """
 
 
-def create_classifiers(data, class_ids, stump_count):
+def create_classifier(data, class_ids, stump_count):
     # The range of each of the attributes
     attr_range = []
     for column in data.columns.drop('ClassID'):
@@ -232,7 +232,7 @@ def cross_validation(n_stumps, data, n_folds=10):
             # merge the list of folds into a single dataframe of training data for convenience
             training_data = pandas.concat(training_data, axis=0)
             # create classifier of the current stump number using training data
-            decision_stumps = create_classifiers(training_data, training_data['ClassID'], count)
+            decision_stumps = create_classifier(training_data, training_data['ClassID'], count)
             # for every record in the testing set which is kept in the nth position of the folds dictionary
             for index, record in folds[test_fold].iterrows():
                 # let classifier with the current stump number decide its class
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     labeled_data = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
     best_number_of_stumps = cross_validation(n_stumps, labeled_data)
     print('Best Number of Stumps: %s\n' % best_number_of_stumps)
-    decision_stumps = create_classifiers(labeled_data, labeled_data['ClassID'], best_number_of_stumps)
+    decision_stumps = create_classifier(labeled_data, labeled_data['ClassID'], best_number_of_stumps)
     file_classify = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
 
     file_header(file_classify)
