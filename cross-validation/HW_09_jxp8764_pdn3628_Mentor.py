@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import pandas
 import pandas as pd
 import os
 import math
@@ -34,7 +35,8 @@ def read_input(file_pointer):
     file_pointer.write('\tdata_file_name = \'Abominable_VALIDATION_Data_FOR_STUDENTS_v770_2215.csv\'\n')
     file_pointer.write('\tdata_file_path = os.path.join(os.getcwd(), data_file_name)\n')
     file_pointer.write('\tdata = pandas.read_csv(data_file_path, delimiter=\',\')\n')
-    file_pointer.write('\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
+    file_pointer.write(
+        '\tclean_data = data[[\'TailLn\', \'HairLn\', \'BangLn\', \'Reach\', \'EarLobes\', \'Age\']].round(decimals=0)\n')
     file_pointer.write('\tclassification = []\n')
     file_pointer.write('\t# quantize the data\n')
     file_pointer.write('\tclean_data[\'Age\'] = data[\'Age\'].apply(\n')
@@ -83,9 +85,10 @@ Prints and writes out the classifications of the data
 """
 
 
-def call_classifier(file_pointer):
+def call_classifier(file_pointer, count=""):
+    s = "file = open(\'HW_09_jxp8764_pdn3628_Classification{0}.csv\'".format(count)
     file_pointer.write('\t# Writes and prints out the classification results\n')
-    file_pointer.write('\tfile = open(\'HW_09_jxp8764_pdn3628_Classification.csv\', \'w\')\n')
+    file_pointer.write('\t' + s + ', \'w\')\n')
     file_pointer.write('\tfor index, record in clean_data.iterrows():\n')
     file_pointer.write('\t\tclass_id = classifier(record)\n')
     file_pointer.write('\t\tprint(class_id)\n')
@@ -120,13 +123,13 @@ def create_classifiers(data, class_ids, n_stumps):
             miss = 0
             values = data[attr_index]
             for index in range(len(values)):
-                if values[index] <= threshold:
-                    if int(class_ids[index]) == -1:
+                if values.iloc[index] <= threshold:
+                    if int(class_ids.iloc[index]) == -1:
                         hit = hit + 1
                     else:
                         miss = miss + 1
                 else:
-                    if int(class_ids[index] == 1):
+                    if int(class_ids.iloc[index] == 1):
                         hit = hit + 1
                     else:
                         miss = miss + 1
@@ -147,7 +150,6 @@ Classifies the data based on the decision stumps
 
 def classify_data(decisions, record):
     answer = 0
-
     # classify by using all the stumps
     for stump in decisions:
         [attr_index, sign, threshold] = stump
@@ -174,46 +176,77 @@ Determines which number of stumps to use based on n-fold cross validation
 
 
 def cross_validation(n_stumps, data, class_ids, n_folds=10):
+    # number of records to have in each fold
     number_of_records_per_fold = int(len(data) / n_folds)
+    # dictionary of data subsets, this will have n_folds number of folds
     folds = {}
+    # separating assam data
     data_assam = data[data['ClassID'] == -1]
+    # separate bhutan data
     data_bhutan = data[data['ClassID'] == 1]
+    # flag for inserting assam and bhutan records alternatively
     toggle = 0
 
+    # do this n_folds times
     for num_fold in range(n_folds):
+        # make a new fold
         fold = []
+        # insert number_of_records_per_fold number of records into it
+        # with about 50% random assam data and 50% random bhutan data
         for record_index in range(number_of_records_per_fold):
             if toggle == 0:
-                fold.append(data_assam)
+                r = random.randint(0, len(data_assam)-1)
+                fold.append(data_assam.iloc[r])
                 toggle = 1
             else:
-                fold.append(data_bhutan)
+                r = random.randint(0, len(data_bhutan)-1)
+                fold.append(data_bhutan.iloc[r])
                 toggle = 0
+        # convert the list of records back to a dataframe
+        fold = pandas.DataFrame(fold)
+        # add this dataframe to the "shelf" labeled with the appropriate fold_number
+        folds[num_fold] = fold
 
-    decision_stumps = create_classifiers(data, class_ids, n_stumps)
-
+    # make a dictionary that will have the number of mistakes per stump number
+    mistakes = {}
+    # for every stump number
     for count in n_stumps:
-        class_name = 'Classifier%s' % count
-        # call the function to classify to determine the fold
-        # classify_data(decision_stumps[count], record)
-
-    file = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
-
-    file_header(file)
-    write_classifier(file, decision_stumps[1])
-    read_input(file)
-    call_classifier(file)
-
-    file.close()
-    return 0
+        # initialize mistakes count to 0
+        mistakes[count] = 0
+        # for 10 folds
+        for n in range(0, n_folds):
+            # initialize training dataset
+            training_data = []
+            # for all folds in the folds dictionary
+            for fold_number in folds.keys():
+                # as long as this fold is not the nth fold (which will be set aside as testing data)
+                if fold_number != n:
+                    # add fold to training data
+                    training_data.append(folds[fold_number])
+            # merge the list of folds into a single dataframe of training data for convenience
+            training_data = pandas.concat(training_data, axis=0)
+            # create classifier of the current stump number using training data
+            decision_stumps = create_classifiers(training_data, training_data['ClassID'], [count])
+            # for every record in the testing set which is kept in the nth position of the folds dictionary
+            for index, record in folds[n].iterrows():
+                # let classifier with the current stump number decide its class
+                classifier_decision = classify_data(decision_stumps[count], record)
+                # if the decision does not match the record's actual label
+                if record['ClassID'] != classifier_decision:
+                    # increment mistakes for classifier with the current stump number
+                    mistakes[count] += 1
+    print(mistakes)
+    return mistakes
 
 
 """
 Reads in and quantizes the data
 """
+
+
 def read_data_file(data_file_name):
     data_file_path = os.path.join(os.getcwd(), data_file_name)
-    data = pd.read_csv(data_file_path, delimiter=',')\
+    data = pd.read_csv(data_file_path, delimiter=',') \
         .drop(columns=['ClassName']).astype(int)
     clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age', 'ClassID']].round(decimals=0)
     classification = []
