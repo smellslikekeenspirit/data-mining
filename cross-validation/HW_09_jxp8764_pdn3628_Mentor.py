@@ -85,10 +85,9 @@ Prints and writes out the classifications of the data
 """
 
 
-def call_classifier(file_pointer, count=""):
-    s = "file = open(\'HW_09_jxp8764_pdn3628_Classification{0}.csv\'".format(count)
+def call_classifier(file_pointer):
     file_pointer.write('\t# Writes and prints out the classification results\n')
-    file_pointer.write('\t' + s + ', \'w\')\n')
+    file_pointer.write('\tfile = open(\'HW_09_jxp8764_pdn3628_Classification.csv\', \'w\')\n')
     file_pointer.write('\tfor index, record in clean_data.iterrows():\n')
     file_pointer.write('\t\tclass_id = classifier(record)\n')
     file_pointer.write('\t\tprint(class_id)\n')
@@ -173,7 +172,7 @@ Determines which number of stumps to use based on n-fold cross validation
 """
 
 
-def cross_validation(n_stumps, data, class_ids, n_folds=10):
+def cross_validation(n_stumps, data, n_folds=10):
     # number of records to have in each fold
     number_of_records_per_fold = int(len(data) / n_folds)
     # dictionary of data subsets, this will have n_folds number of folds
@@ -212,7 +211,7 @@ def cross_validation(n_stumps, data, class_ids, n_folds=10):
         # initialize mistakes count to 0
         mistakes[count] = 0
         # for 10 folds
-        for n in range(0, n_folds):
+        for test_fold in range(0, n_folds):
             # initialize training dataset
             training_data = []
             # for all folds in the folds dictionary
@@ -226,7 +225,7 @@ def cross_validation(n_stumps, data, class_ids, n_folds=10):
             # create classifier of the current stump number using training data
             decision_stumps = create_classifiers(training_data, training_data['ClassID'], count)
             # for every record in the testing set which is kept in the nth position of the folds dictionary
-            for index, record in folds[n].iterrows():
+            for index, record in folds[test_fold].iterrows():
                 # let classifier with the current stump number decide its class
                 classifier_decision = classify_data(decision_stumps, record)
                 # if the decision does not match the record's actual label
@@ -234,7 +233,11 @@ def cross_validation(n_stumps, data, class_ids, n_folds=10):
                     # increment mistakes for classifier with the current stump number
                     mistakes[count] += 1
     print(mistakes)
-    return mistakes
+    least_mistakes = mistakes[1]
+    for stump in n_stumps:
+        if mistakes[stump] < mistakes[least_mistakes]:
+            least_mistakes = stump
+    return least_mistakes
 
 
 """
@@ -247,7 +250,6 @@ def read_data_file(data_file_name):
     data = pd.read_csv(data_file_path, delimiter=',') \
         .drop(columns=['ClassName']).astype(int)
     clean_data = data[['TailLn', 'HairLn', 'BangLn', 'Reach', 'EarLobes', 'Age', 'ClassID']].round(decimals=0)
-    classification = []
     # quantize the data
     clean_data['Age'] = data['Age'].apply(
         lambda x: math.floor(x / STANDARD_BIN) * STANDARD_BIN)
@@ -263,10 +265,8 @@ def read_data_file(data_file_name):
         lambda x: math.ceil(x / STANDARD_BIN) * STANDARD_BIN)
     clean_data['Ht'] = data['Ht'].apply(
         lambda x: math.floor(x / HEIGHT_BIN) * HEIGHT_BIN)
-    for index, row in data.iterrows():
-        classification.append(row['ClassID'])
     # Cast everything to integer.
-    return clean_data.astype(int), classification
+    return clean_data.astype(int)
 
 
 """
@@ -282,4 +282,15 @@ if __name__ == '__main__':
     file_clear.close()
 
     labeled_data, class_ids = read_data_file('Abominable_Data_HW_LABELED_TRAINING_DATA__v770_2215.csv')
-    best_number_of_stumps = cross_validation(n_stumps, labeled_data, class_ids)
+    best_number_of_stumps = cross_validation(n_stumps, labeled_data)
+    print('Best Number of Stumps: %s\n' % best_number_of_stumps)
+
+    decision_stumps = create_classifiers(data, class_ids, best_number_of_stumps)
+    file_classify = open('HW_09_jxp8764_pdn3628_Classifier.py', 'w')
+
+    file_header(file_classify)
+    write_classifier(file_classify, decision_stumps)
+    read_data_file(file_classify)
+    call_classifier(file_classify)
+
+    file_classify.close()
